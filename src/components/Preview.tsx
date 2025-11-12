@@ -444,9 +444,9 @@ export function Preview() {
                       <XAxis dataKey="name" className="text-xs" />
                       <YAxis className="text-xs" />
                       <Tooltip />
-                      <Bar dataKey="a" fill="hsl(var(--chart-1))" />
-                      <Bar dataKey="b" fill="hsl(var(--chart-2))" />
-                      <Bar dataKey="c" fill="hsl(var(--chart-3))" />
+                      <Bar dataKey="a" fill="var(--color-chart-1)" />
+                      <Bar dataKey="b" fill="var(--color-chart-2)" />
+                      <Bar dataKey="c" fill="var(--color-chart-3)" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -478,19 +478,19 @@ export function Preview() {
                       <Line
                         type="monotone"
                         dataKey="x"
-                        stroke="hsl(var(--chart-4))"
+                        stroke="var(--color-chart-4)"
                         strokeWidth={2}
                       />
                       <Line
                         type="monotone"
                         dataKey="y"
-                        stroke="hsl(var(--chart-5))"
+                        stroke="var(--color-chart-5)"
                         strokeWidth={2}
                       />
                       <Line
                         type="monotone"
                         dataKey="z"
-                        stroke="hsl(var(--chart-1))"
+                        stroke="var(--color-chart-1)"
                         strokeWidth={2}
                       />
                     </LineChart>
