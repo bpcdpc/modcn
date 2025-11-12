@@ -79,13 +79,17 @@ export function Preview() {
               <span className="text-[10px]">▼</span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent
+            align="start"
+            sideOffset={0}
+            className="rounded-none p-0 text-xs w-[var(--radix-dropdown-menu-trigger-width)]"
+          >
             <DropdownMenuItem
               onClick={() => {
                 setPreviewTab("Layouts");
                 setLayoutStyle("Brand");
               }}
-              className="text-xs"
+              className="text-xs rounded-none border-b border-border m-0"
             >
               Brand
             </DropdownMenuItem>
@@ -94,7 +98,7 @@ export function Preview() {
                 setPreviewTab("Layouts");
                 setLayoutStyle("Commerce");
               }}
-              className="text-xs"
+              className="text-xs rounded-none border-b border-border m-0"
             >
               Commerce
             </DropdownMenuItem>
@@ -103,7 +107,7 @@ export function Preview() {
                 setPreviewTab("Layouts");
                 setLayoutStyle("Blog");
               }}
-              className="text-xs"
+              className="text-xs rounded-none border-b border-border m-0"
             >
               Blog
             </DropdownMenuItem>
@@ -112,7 +116,7 @@ export function Preview() {
                 setPreviewTab("Layouts");
                 setLayoutStyle("Dashboard");
               }}
-              className="text-xs"
+              className="text-xs rounded-none m-0"
             >
               Dashboard
             </DropdownMenuItem>

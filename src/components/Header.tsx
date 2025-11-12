@@ -10,8 +10,13 @@ import {
 import { PresetName } from "@/lib/types";
 
 export function Header() {
-  const { previewMode, setPreviewMode, currentPreset, setCurrentPreset, toggleSidebar } =
-    useDraftStore();
+  const {
+    previewMode,
+    setPreviewMode,
+    currentPreset,
+    setCurrentPreset,
+    toggleSidebar,
+  } = useDraftStore();
 
   const handlePresetChange = (preset: PresetName) => {
     setCurrentPreset(preset);
@@ -29,7 +34,7 @@ export function Header() {
         {/* 햄버거 메뉴 (모바일) */}
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 hover:bg-accent rounded-md cursor-pointer"
+          className="lg:hidden p-2 hover:bg-accent cursor-pointer"
           aria-label="Toggle sidebar"
         >
           <svg
@@ -47,36 +52,55 @@ export function Header() {
             <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
         </button>
-        <h1 className="text-base font-medium text-foreground">modcn</h1>
+        <h1 className="text-lg font-bold text-foreground tracking-tight">
+          modcn
+        </h1>
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
         {/* Preset Dropdown */}
-        <div className="flex items-center gap-2 border-l border-border pl-2 md:pl-3">
-          <span className="hidden md:inline text-xs text-muted-foreground">Preset:</span>
+        <div className="flex items-center gap-2 pl-2 md:pl-3">
+          <span className="hidden md:inline text-xs text-muted-foreground">
+            Preset:
+          </span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
-                className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between"
+                variant="ghost"
+                className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between rounded-none"
               >
                 {currentPreset}
                 <span className="ml-1 text-[10px]">▼</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handlePresetChange("Default")}>
+            <DropdownMenuContent
+              align="start"
+              sideOffset={0}
+              className="rounded-none p-0 text-xs w-[var(--radix-dropdown-menu-trigger-width)]"
+            >
+              <DropdownMenuItem
+                onClick={() => handlePresetChange("Default")}
+                className="rounded-none border-b border-border m-0 text-xs"
+              >
                 Default
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePresetChange("Modern")}>
+              <DropdownMenuItem
+                onClick={() => handlePresetChange("Modern")}
+                className="rounded-none border-b border-border m-0 text-xs"
+              >
                 Modern
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePresetChange("Minimal")}>
+              <DropdownMenuItem
+                onClick={() => handlePresetChange("Minimal")}
+                className="rounded-none border-b border-border m-0 text-xs"
+              >
                 Minimal
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleCreateNew}>
-                Create New...
+              <DropdownMenuItem
+                onClick={handleCreateNew}
+                className="rounded-none m-0 text-xs text-muted-foreground"
+              >
+                + Create New...
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -88,7 +112,7 @@ export function Header() {
             onClick={() =>
               setPreviewMode(previewMode === "dark" ? "light" : "dark")
             }
-            className="p-1.5 hover:bg-accent rounded-md transition-colors cursor-pointer"
+            className="p-1.5 hover:bg-accent transition-colors cursor-pointer"
             aria-label="Toggle theme"
           >
             {previewMode === "dark" ? (
