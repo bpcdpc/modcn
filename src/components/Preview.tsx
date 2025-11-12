@@ -87,7 +87,7 @@ export function Preview() {
               }}
               className="text-xs"
             >
-              Layouts - Brand
+              Brand
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -96,7 +96,7 @@ export function Preview() {
               }}
               className="text-xs"
             >
-              Layouts - Commerce
+              Commerce
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -105,7 +105,7 @@ export function Preview() {
               }}
               className="text-xs"
             >
-              Layouts - Blog
+              Blog
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -114,7 +114,7 @@ export function Preview() {
               }}
               className="text-xs"
             >
-              Layouts - Dashboard
+              Dashboard
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -249,7 +249,10 @@ export function Preview() {
                   </div>
                   <div className="flex gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                      <AvatarImage
+                        src="https://github.com/shadcn.png"
+                        alt="@shadcn"
+                      />
                       <AvatarFallback className="text-xs">AB</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8">
