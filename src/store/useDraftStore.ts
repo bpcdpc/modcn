@@ -5,6 +5,7 @@ import {
   SidebarTab,
   PreviewTab,
   PresetName,
+  LayoutStyle,
 } from "@/lib/types";
 import { defaultDraft } from "@/lib/defaults";
 import { saveDraft, loadDraft } from "@/lib/storage";
@@ -18,6 +19,7 @@ interface DraftStore {
   previewMode: PreviewMode;
   sidebarTab: SidebarTab;
   previewTab: PreviewTab;
+  layoutStyle: LayoutStyle;
   currentPreset: PresetName;
 
   // Actions
@@ -26,6 +28,7 @@ interface DraftStore {
   setPreviewMode: (mode: PreviewMode) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   setPreviewTab: (tab: PreviewTab) => void;
+  setLayoutStyle: (style: LayoutStyle) => void;
   setCurrentPreset: (preset: PresetName) => void;
   save: () => void;
   load: () => void;
@@ -38,6 +41,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   previewMode: "light",
   sidebarTab: "Colors",
   previewTab: "Components",
+  layoutStyle: "Brand",
   currentPreset: "Default",
 
   // Actions
@@ -46,6 +50,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   setPreviewMode: (mode) => set({ previewMode: mode }),
   setSidebarTab: (tab) => set({ sidebarTab: tab }),
   setPreviewTab: (tab) => set({ previewTab: tab }),
+  setLayoutStyle: (style) => set({ layoutStyle: style }),
   setCurrentPreset: (preset) => set({ currentPreset: preset }),
 
   save: () => {

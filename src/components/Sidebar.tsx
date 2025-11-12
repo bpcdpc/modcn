@@ -18,8 +18,13 @@ import {
 } from "@/lib/fonts";
 
 export function Sidebar() {
-  const { sidebarTab, setSidebarTab, workingDraft, setWorkingDraft } =
-    useDraftStore();
+  const {
+    sidebarTab,
+    setSidebarTab,
+    workingDraft,
+    setWorkingDraft,
+    previewMode,
+  } = useDraftStore();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {}
   );
@@ -29,7 +34,7 @@ export function Sidebar() {
 
   // 초기 로드 시 설정된 폰트 로드
   useEffect(() => {
-    Object.entries(workingDraft.typography).forEach(([key, value]) => {
+    Object.entries(workingDraft.shared.typography).forEach(([key, value]) => {
       if (key.startsWith("font-")) {
         const fontName = extractFontName(value);
         const fontOption = findFontOption(fontName);
@@ -48,9 +53,14 @@ export function Sidebar() {
     }
     setWorkingDraft({
       ...workingDraft,
-      colors: {
-        ...workingDraft.colors,
-        [key]: normalizedValue,
+      modes: {
+        ...workingDraft.modes,
+        [previewMode]: {
+          colors: {
+            ...workingDraft.modes[previewMode].colors,
+            [key]: normalizedValue,
+          },
+        },
       },
     });
   };
@@ -116,9 +126,12 @@ export function Sidebar() {
 
     setWorkingDraft({
       ...workingDraft,
-      typography: {
-        ...workingDraft.typography,
-        [key]: value,
+      shared: {
+        ...workingDraft.shared,
+        typography: {
+          ...workingDraft.shared.typography,
+          [key]: value,
+        },
       },
     });
   };
@@ -126,9 +139,12 @@ export function Sidebar() {
   const handleOthersChange = (key: string, value: any) => {
     setWorkingDraft({
       ...workingDraft,
-      others: {
-        ...workingDraft.others,
-        [key]: value,
+      shared: {
+        ...workingDraft.shared,
+        others: {
+          ...workingDraft.shared.others,
+          [key]: value,
+        },
       },
     });
   };
@@ -136,11 +152,14 @@ export function Sidebar() {
   const handleShadowChange = (key: string, value: any) => {
     setWorkingDraft({
       ...workingDraft,
-      others: {
-        ...workingDraft.others,
-        shadow: {
-          ...(workingDraft.others.shadow || {}),
-          [key]: value,
+      shared: {
+        ...workingDraft.shared,
+        others: {
+          ...workingDraft.shared.others,
+          shadow: {
+            ...(workingDraft.shared.others.shadow || {}),
+            [key]: value,
+          },
         },
       },
     });
@@ -183,36 +202,40 @@ export function Sidebar() {
               // Group colors by prefix
               const groups: Record<string, [string, string][]> = {};
 
-              Object.entries(workingDraft.colors).forEach(([key, value]) => {
-                let groupName = "";
+              Object.entries(workingDraft.modes[previewMode].colors).forEach(
+                ([key, value]) => {
+                  let groupName = "";
 
-                // Special case for background and foreground
-                if (key === "background" || key === "foreground") {
-                  groupName = "Base Colors";
-                } else if (
-                  key === "border" ||
-                  key === "input" ||
-                  key === "ring"
-                ) {
-                  // Group border, input, ring together
-                  groupName = "Border & Input Colors";
-                } else {
-                  // Extract first word as group name
-                  const firstWord = key.split("-")[0];
-                  // Convert to Pascal Case with spaces
-                  groupName = firstWord
-                    .split(/(?=[A-Z])/)
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ");
-                  // Add "Colors" suffix
-                  groupName += " Colors";
-                }
+                  // Special case for background and foreground
+                  if (key === "background" || key === "foreground") {
+                    groupName = "Base Colors";
+                  } else if (
+                    key === "border" ||
+                    key === "input" ||
+                    key === "ring"
+                  ) {
+                    // Group border, input, ring together
+                    groupName = "Border & Input Colors";
+                  } else {
+                    // Extract first word as group name
+                    const firstWord = key.split("-")[0];
+                    // Convert to Pascal Case with spaces
+                    groupName = firstWord
+                      .split(/(?=[A-Z])/)
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ");
+                    // Add "Colors" suffix
+                    groupName += " Colors";
+                  }
 
-                if (!groups[groupName]) {
-                  groups[groupName] = [];
+                  if (!groups[groupName]) {
+                    groups[groupName] = [];
+                  }
+                  groups[groupName].push([key, value]);
                 }
-                groups[groupName].push([key, value]);
-              });
+              );
 
               // Sort groups to put Base Colors first
               const sortedGroups = Object.entries(groups).sort(([a], [b]) => {
@@ -295,7 +318,7 @@ export function Sidebar() {
               const fontGroup: [string, string][] = [];
               const lineHeightGroup: [string, string][] = [];
 
-              Object.entries(workingDraft.typography).forEach(
+              Object.entries(workingDraft.shared.typography).forEach(
                 ([key, value]) => {
                   if (key.startsWith("font-")) {
                     fontGroup.push([key, value]);
@@ -520,7 +543,7 @@ export function Sidebar() {
                       </label>
                       {(() => {
                         const parsed = parseValueWithUnit(
-                          workingDraft.others.radius || "0rem"
+                          workingDraft.shared.others.radius || "0rem"
                         );
                         const numValue = parsed.value;
                         const unit = parsed.unit || "rem";
@@ -613,7 +636,7 @@ export function Sidebar() {
                       </label>
                       {(() => {
                         const parsed = parseValueWithUnit(
-                          workingDraft.others.spacing || "0rem"
+                          workingDraft.shared.others.spacing || "0rem"
                         );
                         const numValue = parsed.value;
                         const unit = parsed.unit || "rem";
@@ -702,8 +725,8 @@ export function Sidebar() {
                   {isExpanded && (
                     <div className="p-2.5 bg-background rounded-md border border-border/50">
                       <div className="space-y-2">
-                        {workingDraft.others.shadow &&
-                          Object.entries(workingDraft.others.shadow).map(
+                        {workingDraft.shared.others.shadow &&
+                          Object.entries(workingDraft.shared.others.shadow).map(
                             ([key, value]) =>
                               key === "shadow-color" ? (
                                 <div key={key}>
