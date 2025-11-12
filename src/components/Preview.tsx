@@ -430,18 +430,23 @@ export function Preview() {
                   <ResponsiveContainer width="100%" height={180}>
                     <BarChart
                       data={[
-                        { name: "Jan", value: 400 },
-                        { name: "Feb", value: 300 },
-                        { name: "Mar", value: 600 },
-                        { name: "Apr", value: 800 },
-                        { name: "May", value: 500 },
+                        { name: "Jan", a: 400, b: 240, c: 320 },
+                        { name: "Feb", a: 300, b: 380, c: 280 },
+                        { name: "Mar", a: 600, b: 300, c: 450 },
+                        { name: "Apr", a: 800, b: 400, c: 520 },
+                        { name: "May", a: 500, b: 480, c: 390 },
                       ]}
                     >
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-border"
+                      />
                       <XAxis dataKey="name" className="text-xs" />
                       <YAxis className="text-xs" />
                       <Tooltip />
-                      <Bar dataKey="value" fill="hsl(var(--primary))" />
+                      <Bar dataKey="a" fill="hsl(var(--chart-1))" />
+                      <Bar dataKey="b" fill="hsl(var(--chart-2))" />
+                      <Bar dataKey="c" fill="hsl(var(--chart-3))" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -456,55 +461,40 @@ export function Preview() {
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart
                       data={[
-                        { name: "Jan", value: 400 },
-                        { name: "Feb", value: 300 },
-                        { name: "Mar", value: 600 },
-                        { name: "Apr", value: 800 },
-                        { name: "May", value: 500 },
+                        { name: "Jan", x: 400, y: 240, z: 180 },
+                        { name: "Feb", x: 300, y: 380, z: 220 },
+                        { name: "Mar", x: 600, y: 300, z: 350 },
+                        { name: "Apr", x: 800, y: 400, z: 480 },
+                        { name: "May", x: 500, y: 480, z: 420 },
                       ]}
                     >
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="stroke-border"
+                      />
                       <XAxis dataKey="name" className="text-xs" />
                       <YAxis className="text-xs" />
                       <Tooltip />
                       <Line
                         type="monotone"
-                        dataKey="value"
-                        stroke="hsl(var(--primary))"
+                        dataKey="x"
+                        stroke="hsl(var(--chart-4))"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="y"
+                        stroke="hsl(var(--chart-5))"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="z"
+                        stroke="hsl(var(--chart-1))"
                         strokeWidth={2}
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Sidebar Mini */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Sidebar Sample</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex h-[180px] border rounded-md overflow-hidden">
-                    {/* Mini Sidebar */}
-                    <div className="w-16 bg-sidebar border-r border-sidebar-border flex flex-col items-center py-3 gap-3">
-                      <div className="w-8 h-8 rounded-md bg-sidebar-primary flex items-center justify-center">
-                        <div className="w-4 h-4 bg-sidebar-primary-foreground/20 rounded-sm" />
-                      </div>
-                      <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                        <div className="w-4 h-4 bg-sidebar-accent-foreground/20 rounded-sm" />
-                      </div>
-                      <div className="w-8 h-8 rounded-md bg-sidebar-accent flex items-center justify-center">
-                        <div className="w-4 h-4 bg-sidebar-accent-foreground/20 rounded-sm" />
-                      </div>
-                    </div>
-                    {/* Content Area */}
-                    <div className="flex-1 p-3 space-y-2">
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-3/4" />
-                      <Skeleton className="h-3 w-full" />
-                      <Skeleton className="h-3 w-2/3" />
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
