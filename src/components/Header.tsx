@@ -10,7 +10,7 @@ import {
 import { PresetName } from "@/lib/types";
 
 export function Header() {
-  const { previewMode, setPreviewMode, currentPreset, setCurrentPreset } =
+  const { previewMode, setPreviewMode, currentPreset, setCurrentPreset, toggleSidebar } =
     useDraftStore();
 
   const handlePresetChange = (preset: PresetName) => {
@@ -24,20 +24,41 @@ export function Header() {
   };
 
   return (
-    <header className="h-[56px] border-b border-border bg-background flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
+    <header className="h-[56px] border-b border-border bg-background flex items-center justify-between px-4 md:px-6">
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* 햄버거 메뉴 (모바일) */}
+        <button
+          onClick={toggleSidebar}
+          className="lg:hidden p-2 hover:bg-accent rounded-md cursor-pointer"
+          aria-label="Toggle sidebar"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <h1 className="text-base font-medium text-foreground">modcn</h1>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
         {/* Preset Dropdown */}
-        <div className="flex items-center gap-2 border-l border-border pl-3">
-          <span className="text-xs text-muted-foreground">Preset:</span>
+        <div className="flex items-center gap-2 border-l border-border pl-2 md:pl-3">
+          <span className="hidden md:inline text-xs text-muted-foreground">Preset:</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="h-8 min-w-[100px] text-xs justify-between"
+                className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between"
               >
                 {currentPreset}
                 <span className="ml-1 text-[10px]">▼</span>

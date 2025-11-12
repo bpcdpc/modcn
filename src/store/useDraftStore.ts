@@ -21,6 +21,7 @@ interface DraftStore {
   previewTab: PreviewTab;
   layoutStyle: LayoutStyle;
   currentPreset: PresetName;
+  sidebarOpen: boolean;
 
   // Actions
   setWorkingDraft: (draft: WorkingDraft) => void;
@@ -30,6 +31,8 @@ interface DraftStore {
   setPreviewTab: (tab: PreviewTab) => void;
   setLayoutStyle: (style: LayoutStyle) => void;
   setCurrentPreset: (preset: PresetName) => void;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
   save: () => void;
   load: () => void;
 }
@@ -43,6 +46,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   previewTab: "Components",
   layoutStyle: "Brand",
   currentPreset: "Default",
+  sidebarOpen: false,
 
   // Actions
   setWorkingDraft: (draft) => set({ workingDraft: draft, dirty: true }),
@@ -52,6 +56,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   setPreviewTab: (tab) => set({ previewTab: tab }),
   setLayoutStyle: (style) => set({ layoutStyle: style }),
   setCurrentPreset: (preset) => set({ currentPreset: preset }),
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
   save: () => {
     const { workingDraft } = get();

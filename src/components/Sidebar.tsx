@@ -24,6 +24,8 @@ export function Sidebar() {
     workingDraft,
     setWorkingDraft,
     previewMode,
+    sidebarOpen,
+    setSidebarOpen,
   } = useDraftStore();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {}
@@ -175,9 +177,51 @@ export function Sidebar() {
   const tabs: SidebarTab[] = ["Colors", "Typography", "Others"];
 
   return (
-    <aside className="w-[280px] border-r border-border bg-muted flex flex-col">
-      {/* Tabs */}
-      <div className="border-b border-border flex bg-background">
+    <>
+      {/* 모바일 오버레이 배경 */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
+      {/* 사이드바 */}
+      <aside
+        className={cn(
+          "w-[280px] border-r border-border bg-muted flex flex-col",
+          // 모바일: fixed overlay, 데스크톱: static
+          "fixed lg:static inset-y-0 left-0 z-50 lg:z-auto",
+          // 모바일 슬라이드 애니메이션
+          "transform transition-transform duration-300 ease-in-out lg:transform-none",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
+        {/* 닫기 버튼 (모바일) */}
+        <div className="lg:hidden flex justify-end p-2 border-b border-border bg-background">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 hover:bg-accent rounded-md cursor-pointer"
+            aria-label="Close sidebar"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        
+        {/* Tabs */}
+        <div className="border-b border-border flex bg-background">
         {tabs.map((tab) => (
           <button
             key={tab}
@@ -904,5 +948,6 @@ export function Sidebar() {
         )}
       </div>
     </aside>
+    </>
   );
 }
