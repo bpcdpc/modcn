@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -249,6 +249,7 @@ export function Preview() {
                   </div>
                   <div className="flex gap-2">
                     <Avatar className="h-8 w-8">
+                      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                       <AvatarFallback className="text-xs">AB</AvatarFallback>
                     </Avatar>
                     <Avatar className="h-8 w-8">
