@@ -1,3 +1,8 @@
+/**
+ * Tabs component (M2: Token-driven via CSS vars)
+ *
+ * Uses var(--color-*) from ThemeProvider (via Tailwind semantic classes).
+ */
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";

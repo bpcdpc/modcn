@@ -1,4 +1,5 @@
 import { useDraftStore } from "@/store/useDraftStore";
+import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,7 +46,15 @@ export function Preview() {
     previewMode,
     layoutStyle,
     setLayoutStyle,
-  } = useDraftStore();
+  } = useDraftStore(
+    useShallow((state) => ({
+      previewTab: state.previewTab,
+      setPreviewTab: state.setPreviewTab,
+      previewMode: state.previewMode,
+      layoutStyle: state.layoutStyle,
+      setLayoutStyle: state.setLayoutStyle,
+    }))
+  );
 
   return (
     <div className="flex-1 flex flex-col bg-white">
@@ -124,31 +133,168 @@ export function Preview() {
         </DropdownMenu>
       </div>
 
-      {/* Preview Content */}
+      {/* Preview Content - M2: preview-canvas 클래스로 토큰 스코핑 */}
       <div
         className={cn(
-          "flex-1 overflow-y-auto p-4 md:p-6 lg:p-8",
+          "preview-canvas flex-1 overflow-y-auto p-4 md:p-6 lg:p-8",
           previewMode === "dark" ? "dark bg-background" : "bg-white"
         )}
       >
         {previewTab === "Components" && (
           <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6 text-foreground">
+              M2: Token-Driven Component Showcase
+            </h2>
+            <p className="text-sm text-muted-foreground mb-8">
+              모든 컴포넌트는 Sidebar의 토큰 변경에 실시간으로 반응합니다
+              (≤300ms).
+            </p>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {/* Buttons */}
+              {/* Button Variants */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm">Buttons</CardTitle>
+                  <CardTitle className="text-sm">Button Variants</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button variant="default" className="w-full h-9 text-xs">
+                <CardContent className="space-y-2">
+                  <Button variant="default" size="sm" className="w-full">
                     Default
                   </Button>
-                  <Button variant="outline" className="w-full h-9 text-xs">
-                    Outline
-                  </Button>
-                  <Button variant="secondary" className="w-full h-9 text-xs">
+                  <Button variant="secondary" size="sm" className="w-full">
                     Secondary
                   </Button>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Outline
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full">
+                    Ghost
+                  </Button>
+                  <Button variant="destructive" size="sm" className="w-full">
+                    Destructive
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Button Sizes */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Button Sizes</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button size="sm" className="w-full">
+                    Small
+                  </Button>
+                  <Button size="default" className="w-full">
+                    Default
+                  </Button>
+                  <Button size="lg" className="w-full">
+                    Large
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Button States */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Button States</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button className="w-full">Normal</Button>
+                  <Button className="w-full" disabled>
+                    Disabled
+                  </Button>
+                  <Button className="w-full hover:opacity-90">Hover Me</Button>
+                </CardContent>
+              </Card>
+
+              {/* Input Variants */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Input Variants</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Default</Label>
+                    <Input
+                      variant="default"
+                      placeholder="Default input"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Error</Label>
+                    <Input
+                      variant="error"
+                      placeholder="Error state"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Success</Label>
+                    <Input
+                      variant="success"
+                      placeholder="Success state"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Card Variants */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Card Variants</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Card variant="default" className="p-3">
+                    <p className="text-xs text-foreground">Default Card</p>
+                  </Card>
+                  <Card variant="elevated" className="p-3">
+                    <p className="text-xs text-foreground">Elevated Card</p>
+                  </Card>
+                  <Card variant="outlined" className="p-3">
+                    <p className="text-xs text-foreground">Outlined Card</p>
+                  </Card>
+                </CardContent>
+              </Card>
+
+              {/* Tabs Sample */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Tabs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Tabs defaultValue="tab1">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="tab1" className="text-xs">
+                        Tab 1
+                      </TabsTrigger>
+                      <TabsTrigger value="tab2" className="text-xs">
+                        Tab 2
+                      </TabsTrigger>
+                      <TabsTrigger value="tab3" className="text-xs">
+                        Tab 3
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent
+                      value="tab1"
+                      className="text-xs text-foreground mt-3"
+                    >
+                      Tab 1 content
+                    </TabsContent>
+                    <TabsContent
+                      value="tab2"
+                      className="text-xs text-foreground mt-3"
+                    >
+                      Tab 2 content
+                    </TabsContent>
+                    <TabsContent
+                      value="tab3"
+                      className="text-xs text-foreground mt-3"
+                    >
+                      Tab 3 content
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
 
