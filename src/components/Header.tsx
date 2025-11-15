@@ -6,25 +6,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PresetName } from "@/lib/types";
+import { listPresets } from "@/lib/storage";
+import { useState, useEffect } from "react";
+import { Preset } from "@/lib/types";
 
 export function Header() {
   const {
-    previewMode,
+    workingDraft,
     setPreviewMode,
-    currentPreset,
-    setCurrentPreset,
     toggleSidebar,
+    applyPreset,
   } = useDraftStore();
+  
+  const previewMode = workingDraft.ui.previewMode;
+  const [presets, setPresets] = useState<Preset[]>([]);
+  const currentPresetName = workingDraft.sourcePresetId
+    ? presets.find((p) => p.id === workingDraft.sourcePresetId)?.name || "Untitled"
+    : "Untitled";
 
-  const handlePresetChange = (preset: PresetName) => {
-    setCurrentPreset(preset);
-    console.log("Preset changed to:", preset);
+  useEffect(() => {
+    setPresets(listPresets());
+  }, []);
+
+  const handlePresetChange = (presetId: string) => {
+    applyPreset(presetId);
   };
 
   const handleCreateNew = () => {
+    // TODO: Create new preset functionality
     console.log("Create new preset...");
-    alert("Create new preset functionality");
+    alert("Create new preset functionality - TODO");
   };
 
   return (
@@ -68,33 +79,24 @@ export function Header() {
                 variant="ghost"
                 className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between rounded-none"
               >
-                {currentPreset}
+                {currentPresetName}
                 <span className="ml-1 text-[10px]">▼</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
               sideOffset={0}
-              className="rounded-none p-0 text-xs w-[var(--radix-dropdown-menu-trigger-width)]"
+              className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
             >
-              <DropdownMenuItem
-                onClick={() => handlePresetChange("Default")}
-                className="rounded-none border-b border-border m-0 text-xs"
-              >
-                Default
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handlePresetChange("Modern")}
-                className="rounded-none border-b border-border m-0 text-xs"
-              >
-                Modern
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handlePresetChange("Minimal")}
-                className="rounded-none border-b border-border m-0 text-xs"
-              >
-                Minimal
-              </DropdownMenuItem>
+              {presets.map((preset) => (
+                <DropdownMenuItem
+                  key={preset.id}
+                  onClick={() => handlePresetChange(preset.id)}
+                  className="rounded-none border-b border-border m-0 text-xs"
+                >
+                  {preset.name}
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuItem
                 onClick={handleCreateNew}
                 className="rounded-none m-0 text-xs text-muted-foreground"

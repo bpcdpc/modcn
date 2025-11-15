@@ -41,20 +41,22 @@ import {
 
 export function Preview() {
   const {
+    workingDraft,
     previewTab,
     setPreviewTab,
-    previewMode,
     layoutStyle,
     setLayoutStyle,
   } = useDraftStore(
     useShallow((state) => ({
+      workingDraft: state.workingDraft,
       previewTab: state.previewTab,
       setPreviewTab: state.setPreviewTab,
-      previewMode: state.previewMode,
       layoutStyle: state.layoutStyle,
       setLayoutStyle: state.setLayoutStyle,
     }))
   );
+  
+  const previewMode = workingDraft.ui.previewMode;
 
   return (
     <div className="flex-1 flex flex-col bg-white">
@@ -91,7 +93,7 @@ export function Preview() {
           <DropdownMenuContent
             align="start"
             sideOffset={0}
-            className="rounded-none p-0 text-xs w-[var(--radix-dropdown-menu-trigger-width)]"
+            className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
           >
             <DropdownMenuItem
               onClick={() => {

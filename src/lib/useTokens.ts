@@ -15,12 +15,11 @@
 
 import { useCallback } from "react";
 import { useDraftStore } from "@/store/useDraftStore";
-import { saveDraft } from "./storage";
 import { PreviewMode } from "./types";
 
 export function useTokens() {
-  const { workingDraft, setWorkingDraft, previewMode, setDirty } =
-    useDraftStore();
+  const { workingDraft, updateTokens } = useDraftStore();
+  const previewMode = workingDraft.ui.previewMode;
 
   /**
    * 토큰 값 설정
@@ -36,31 +35,48 @@ export function useTokens() {
       value: any,
       mode?: PreviewMode
     ) => {
-      const newDraft = { ...workingDraft };
+      const targetMode = mode || previewMode;
+      const currentMode = workingDraft.tokens.modes[targetMode];
+      const colors = (currentMode?.colors as Record<string, string>) || {};
 
       if (category === "colors") {
-        const targetMode = mode || previewMode;
-        newDraft.modes[targetMode].colors = {
-          ...newDraft.modes[targetMode].colors,
-          [key]: value,
-        };
+        updateTokens({
+          ...workingDraft.tokens,
+          modes: {
+            ...workingDraft.tokens.modes,
+            [targetMode]: {
+              ...currentMode,
+              colors: {
+                ...colors,
+                [key]: value,
+              },
+            },
+          },
+        });
+      } else if (category === "typography") {
+        const typography = (workingDraft.tokens.shared.typography as Record<string, string>) || {};
+        updateTokens({
+          ...workingDraft.tokens,
+          shared: {
+            ...workingDraft.tokens.shared,
+            typography: {
+              ...typography,
+              [key]: value,
+            },
+          },
+        });
       } else {
-        // typography or others
-        newDraft.shared[category] = {
-          ...newDraft.shared[category],
-          [key]: value,
-        };
+        // others
+        updateTokens({
+          ...workingDraft.tokens,
+          shared: {
+            ...workingDraft.tokens.shared,
+            [key]: value,
+          },
+        });
       }
-
-      setWorkingDraft(newDraft);
-      setDirty(true);
-
-      // debounced save (300ms)
-      setTimeout(() => {
-        saveDraft(newDraft);
-      }, 300);
     },
-    [workingDraft, previewMode, setWorkingDraft, setDirty]
+    [workingDraft, previewMode, updateTokens]
   );
 
   /**
@@ -76,7 +92,8 @@ export function useTokens() {
   const getColors = useCallback(
     (mode?: PreviewMode) => {
       const targetMode = mode || previewMode;
-      return workingDraft.modes[targetMode].colors;
+      const currentMode = workingDraft.tokens.modes[targetMode];
+      return (currentMode?.colors as Record<string, string>) || {};
     },
     [workingDraft, previewMode]
   );
@@ -85,14 +102,16 @@ export function useTokens() {
    * Typography 토큰 반환
    */
   const getTypography = useCallback(() => {
-    return workingDraft.shared.typography;
+    return (workingDraft.tokens.shared.typography as Record<string, string>) || {};
   }, [workingDraft]);
 
   /**
    * Others 토큰 반환
    */
   const getOthers = useCallback(() => {
-    return workingDraft.shared.others;
+    // others는 shared에서 typography를 제외한 나머지
+    const { typography, ...others } = workingDraft.tokens.shared;
+    return others;
   }, [workingDraft]);
 
   return {

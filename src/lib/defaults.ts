@@ -1,6 +1,6 @@
-import { WorkingDraft } from "./types";
+import { Tokens, WorkingDraft } from "./types";
 
-export const defaultDraft: WorkingDraft = {
+export const DEFAULT_TOKENS: Tokens = {
   modes: {
     light: {
       colors: {
@@ -82,17 +82,27 @@ export const defaultDraft: WorkingDraft = {
       "font-mono": "ui-monospace, SFMono-Regular, Menlo, monospace",
       "tracking-normal": "0em",
     },
-    others: {
-      radius: "0.5rem",
-      spacing: "0.25rem",
-      shadow: {
-        "shadow-color": "#333333",
-        "shadow-opacity": 0.2,
-        "shadow-blur": "24px",
-        "shadow-spread": "0px",
-        "shadow-x": "0px",
-        "shadow-y": "0px",
-      },
+    radius: "0.5rem",
+    spacing: "0.25rem",
+    shadow: {
+      "shadow-color": "#333333",
+      "shadow-opacity": 0.2,
+      "shadow-blur": "24px",
+      "shadow-spread": "0px",
+      "shadow-x": "0px",
+      "shadow-y": "0px",
     },
   },
 };
+
+export const createInitialWorkingDraft = (): WorkingDraft => ({
+  sourcePresetId: null,
+  tokens: DEFAULT_TOKENS,
+  ui: {
+    previewMode: "light",
+    sidebarTab: "Colors",
+    previewTab: "Components",
+    expandedGroups: {}, // 기본값: 모든 그룹이 펼쳐진 상태 (undefined일 때 true로 처리)
+  },
+  dirty: false,
+});

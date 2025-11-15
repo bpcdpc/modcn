@@ -6,7 +6,8 @@
  * Purpose:
  * - Zustand workingDraft 구독
  * - 토큰 변경 시 CSS custom properties 자동 업데이트
- * - debounce 150ms로 성능 최적화
+ * - 초기 마운트는 즉시 반영 (깜빡임 최소화)
+ * - 이후 변경은 150ms debounce
  *
  * Usage:
  * <ThemeProvider>
@@ -14,7 +15,7 @@
  * </ThemeProvider>
  */
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useDraftStore } from "@/store/useDraftStore";
 import { useShallow } from "zustand/react/shallow";
 import { generateCSSVars } from "./cssVarEmitter";
@@ -24,19 +25,23 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { workingDraft, previewMode } = useDraftStore(
+  const { workingDraft } = useDraftStore(
     useShallow((state) => ({
       workingDraft: state.workingDraft,
-      previewMode: state.previewMode,
     }))
   );
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const styleElRef = useRef<HTMLStyleElement | null>(null);
 
-  useEffect(() => {
-    // 스타일 엘리먼트 초기화 (한 번만)
+  const previewMode = workingDraft.ui.previewMode;
+  const timeoutRef = useRef<number | null>(null);
+  const styleElRef = useRef<HTMLStyleElement | null>(null);
+  const isInitialMountRef = useRef(true);
+
+  useLayoutEffect(() => {
+    // 스타일 엘리먼트 준비
     if (!styleElRef.current) {
-      let el = document.getElementById("modcn-theme") as HTMLStyleElement;
+      let el = document.getElementById(
+        "modcn-theme"
+      ) as HTMLStyleElement | null;
       if (!el) {
         el = document.createElement("style");
         el.id = "modcn-theme";
@@ -45,12 +50,22 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       styleElRef.current = el;
     }
 
-    // debounce: 150ms 내 연속 변경은 마지막 한 번만 적용
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+    if (!styleElRef.current) return;
+
+    // ✅ 초기 마운트: debounce 없이 바로 반영 (깜빡임 최소화)
+    if (isInitialMountRef.current) {
+      const cssString = generateCSSVars(workingDraft, previewMode);
+      styleElRef.current.textContent = cssString;
+      isInitialMountRef.current = false;
+      return;
     }
 
-    timeoutRef.current = setTimeout(() => {
+    // 이후 변경: debounce 150ms
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
       const cssString = generateCSSVars(workingDraft, previewMode);
       if (styleElRef.current) {
         styleElRef.current.textContent = cssString;
@@ -58,8 +73,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }, 150);
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (timeoutRef.current !== null) {
+        window.clearTimeout(timeoutRef.current);
       }
     };
   }, [workingDraft, previewMode]);

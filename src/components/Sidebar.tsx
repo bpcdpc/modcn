@@ -22,30 +22,34 @@ export function Sidebar() {
     sidebarTab,
     setSidebarTab,
     workingDraft,
+    updateTokens,
     setWorkingDraft,
-    previewMode,
+    // setPreviewMode,
     sidebarOpen,
     setSidebarOpen,
   } = useDraftStore();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {}
-  );
+
+  const previewMode = workingDraft.ui.previewMode;
+  const expandedGroups = workingDraft.ui.expandedGroups || {};
   const [editingColorValues, setEditingColorValues] = useState<
     Record<string, string>
   >({});
 
   // 초기 로드 시 설정된 폰트 로드
   useEffect(() => {
-    Object.entries(workingDraft.shared.typography).forEach(([key, value]) => {
-      if (key.startsWith("font-")) {
-        const fontName = extractFontName(value);
-        const fontOption = findFontOption(fontName);
-        if (fontOption && fontOption.weights) {
-          loadGoogleFont(fontName, fontOption.weights);
+    const typography = workingDraft.tokens.shared.typography;
+    if (typography) {
+      Object.entries(typography).forEach(([key, value]) => {
+        if (key.startsWith("font-")) {
+          const fontName = extractFontName(value as string);
+          const fontOption = findFontOption(fontName);
+          if (fontOption && fontOption.weights) {
+            loadGoogleFont(fontName, fontOption.weights);
+          }
         }
-      }
-    });
-  }, []);
+      });
+    }
+  }, [workingDraft.tokens.shared]);
 
   const handleColorChange = (key: string, value: string) => {
     // Normalize hex value (add # if missing)
@@ -53,13 +57,16 @@ export function Sidebar() {
     if (normalizedValue && !normalizedValue.startsWith("#")) {
       normalizedValue = `#${normalizedValue}`;
     }
-    setWorkingDraft({
-      ...workingDraft,
+    const currentMode = workingDraft.tokens.modes[previewMode];
+    const colors = (currentMode?.colors as Record<string, string>) || {};
+    updateTokens({
+      ...workingDraft.tokens,
       modes: {
-        ...workingDraft.modes,
+        ...workingDraft.tokens.modes,
         [previewMode]: {
+          ...currentMode,
           colors: {
-            ...workingDraft.modes[previewMode].colors,
+            ...colors,
             [key]: normalizedValue,
           },
         },
@@ -126,12 +133,14 @@ export function Sidebar() {
       }
     }
 
-    setWorkingDraft({
-      ...workingDraft,
+    const typography =
+      (workingDraft.tokens.shared.typography as Record<string, string>) || {};
+    updateTokens({
+      ...workingDraft.tokens,
       shared: {
-        ...workingDraft.shared,
+        ...workingDraft.tokens.shared,
         typography: {
-          ...workingDraft.shared.typography,
+          ...typography,
           [key]: value,
         },
       },
@@ -139,39 +148,44 @@ export function Sidebar() {
   };
 
   const handleOthersChange = (key: string, value: any) => {
-    setWorkingDraft({
-      ...workingDraft,
+    updateTokens({
+      ...workingDraft.tokens,
       shared: {
-        ...workingDraft.shared,
-        others: {
-          ...workingDraft.shared.others,
+        ...workingDraft.tokens.shared,
+        [key]: value,
+      },
+    });
+  };
+
+  const handleShadowChange = (key: string, value: any) => {
+    const shadow =
+      (workingDraft.tokens.shared.shadow as Record<string, any>) || {};
+    updateTokens({
+      ...workingDraft.tokens,
+      shared: {
+        ...workingDraft.tokens.shared,
+        shadow: {
+          ...shadow,
           [key]: value,
         },
       },
     });
   };
 
-  const handleShadowChange = (key: string, value: any) => {
-    setWorkingDraft({
+  const toggleGroup = (groupName: string) => {
+    const currentExpanded = expandedGroups[groupName] ?? true;
+    const updatedDraft = {
       ...workingDraft,
-      shared: {
-        ...workingDraft.shared,
-        others: {
-          ...workingDraft.shared.others,
-          shadow: {
-            ...(workingDraft.shared.others.shadow || {}),
-            [key]: value,
-          },
+      ui: {
+        ...workingDraft.ui,
+        expandedGroups: {
+          ...expandedGroups,
+          [groupName]: !currentExpanded,
         },
       },
-    });
-  };
-
-  const toggleGroup = (groupName: string) => {
-    setExpandedGroups((prev) => ({
-      ...prev,
-      [groupName]: !(prev[groupName] ?? true),
-    }));
+      dirty: true,
+    };
+    setWorkingDraft(updatedDraft);
   };
 
   const tabs: SidebarTab[] = ["Colors", "Typography", "Others"];
@@ -246,40 +260,41 @@ export function Sidebar() {
                 // Group colors by prefix
                 const groups: Record<string, [string, string][]> = {};
 
-                Object.entries(workingDraft.modes[previewMode].colors).forEach(
-                  ([key, value]) => {
-                    let groupName = "";
+                const currentMode = workingDraft.tokens.modes[previewMode];
+                const colors =
+                  (currentMode?.colors as Record<string, string>) || {};
+                Object.entries(colors).forEach(([key, value]) => {
+                  let groupName = "";
 
-                    // Special case for background and foreground
-                    if (key === "background" || key === "foreground") {
-                      groupName = "Base Colors";
-                    } else if (
-                      key === "border" ||
-                      key === "input" ||
-                      key === "ring"
-                    ) {
-                      // Group border, input, ring together
-                      groupName = "Border & Input Colors";
-                    } else {
-                      // Extract first word as group name
-                      const firstWord = key.split("-")[0];
-                      // Convert to Pascal Case with spaces
-                      groupName = firstWord
-                        .split(/(?=[A-Z])/)
-                        .map(
-                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                        )
-                        .join(" ");
-                      // Add "Colors" suffix
-                      groupName += " Colors";
-                    }
-
-                    if (!groups[groupName]) {
-                      groups[groupName] = [];
-                    }
-                    groups[groupName].push([key, value]);
+                  // Special case for background and foreground
+                  if (key === "background" || key === "foreground") {
+                    groupName = "Base Colors";
+                  } else if (
+                    key === "border" ||
+                    key === "input" ||
+                    key === "ring"
+                  ) {
+                    // Group border, input, ring together
+                    groupName = "Border & Input Colors";
+                  } else {
+                    // Extract first word as group name
+                    const firstWord = key.split("-")[0];
+                    // Convert to Pascal Case with spaces
+                    groupName = firstWord
+                      .split(/(?=[A-Z])/)
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ");
+                    // Add "Colors" suffix
+                    groupName += " Colors";
                   }
-                );
+
+                  if (!groups[groupName]) {
+                    groups[groupName] = [];
+                  }
+                  groups[groupName].push([key, value]);
+                });
 
                 // Sort groups to put Base Colors first
                 const sortedGroups = Object.entries(groups).sort(([a], [b]) => {
@@ -365,15 +380,18 @@ export function Sidebar() {
                 const fontGroup: [string, string][] = [];
                 const lineHeightGroup: [string, string][] = [];
 
-                Object.entries(workingDraft.shared.typography).forEach(
-                  ([key, value]) => {
-                    if (key.startsWith("font-")) {
-                      fontGroup.push([key, value]);
-                    } else {
-                      lineHeightGroup.push([key, value]);
-                    }
+                const typography =
+                  (workingDraft.tokens.shared.typography as Record<
+                    string,
+                    string
+                  >) || {};
+                Object.entries(typography).forEach(([key, value]) => {
+                  if (key.startsWith("font-")) {
+                    fontGroup.push([key, value]);
+                  } else {
+                    lineHeightGroup.push([key, value]);
                   }
-                );
+                });
 
                 const groups = [
                   { name: "Font", items: fontGroup },
@@ -592,9 +610,10 @@ export function Sidebar() {
                           radius
                         </label>
                         {(() => {
-                          const parsed = parseValueWithUnit(
-                            workingDraft.shared.others.radius || "0rem"
-                          );
+                          const radius =
+                            (workingDraft.tokens.shared.radius as string) ||
+                            "0rem";
+                          const parsed = parseValueWithUnit(radius);
                           const numValue = parsed.value;
                           const unit = parsed.unit || "rem";
 
@@ -688,9 +707,10 @@ export function Sidebar() {
                           spacing
                         </label>
                         {(() => {
-                          const parsed = parseValueWithUnit(
-                            workingDraft.shared.others.spacing || "0rem"
-                          );
+                          const spacing =
+                            (workingDraft.tokens.shared.spacing as string) ||
+                            "0rem";
+                          const parsed = parseValueWithUnit(spacing);
                           const numValue = parsed.value;
                           const unit = parsed.unit || "rem";
 
@@ -781,9 +801,12 @@ export function Sidebar() {
                     {isExpanded && (
                       <div className="p-2.5 bg-background rounded-md border border-border/50">
                         <div className="space-y-2">
-                          {workingDraft.shared.others.shadow &&
+                          {workingDraft.tokens.shared.shadow &&
                             Object.entries(
-                              workingDraft.shared.others.shadow
+                              workingDraft.tokens.shared.shadow as Record<
+                                string,
+                                any
+                              >
                             ).map(([key, value]) =>
                               key === "shadow-color" ? (
                                 <div key={key}>

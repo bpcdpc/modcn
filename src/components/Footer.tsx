@@ -1,17 +1,21 @@
 import { useDraftStore } from "@/store/useDraftStore";
 import { Button } from "@/components/ui/button";
-import { exportDraft } from "@/lib/storage";
 
 export function Footer() {
-  const { dirty, save, workingDraft, currentPreset } = useDraftStore();
+  const { workingDraft } = useDraftStore();
+  const dirty = workingDraft.dirty;
+  const currentPresetName = workingDraft.sourcePresetId || "Untitled";
 
   const handleSave = () => {
-    save();
-    alert("Saved successfully!");
+    // TODO: Save to preset functionality
+    console.log("Save functionality - TODO");
+    alert("Save functionality - TODO");
   };
 
   const handleExport = () => {
-    exportDraft(workingDraft);
+    // TODO: Export / ExportJob 기능 구현
+    console.log("Export functionality - TODO");
+    alert("Export functionality - TODO");
   };
 
   return (
@@ -25,8 +29,7 @@ export function Footer() {
 
       {/* 우측: 상태 및 버튼 */}
       <div className="flex items-center gap-2 md:gap-3 text-[11px] ml-auto">
-        <span className="text-muted-foreground">{currentPreset}</span>
-        <span className="text-muted-foreground">v1.2.3</span>
+        <span className="text-muted-foreground">{currentPresetName}</span>
         <span className="text-muted-foreground/50">·</span>
 
         <div className="hidden md:flex items-center gap-1.5">

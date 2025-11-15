@@ -30,13 +30,14 @@ export function generateCSSVars(
   const vars: string[] = [];
 
   // 1. Colors (mode-specific)
-  const colors = draft.modes[mode].colors;
+  const currentMode = draft.tokens.modes[mode];
+  const colors = (currentMode?.colors as Record<string, string>) || {};
   for (const [key, value] of Object.entries(colors)) {
     vars.push(`  --color-${key}: ${value};`);
   }
 
   // 2. Typography (shared)
-  const typography = draft.shared.typography;
+  const typography = (draft.tokens.shared.typography as Record<string, string>) || {};
   for (const [key, value] of Object.entries(typography)) {
     // font-sans → --font-sans
     // tracking-normal → --tracking-normal
@@ -44,21 +45,21 @@ export function generateCSSVars(
   }
 
   // 3. Others (shared)
-  const others = draft.shared.others;
+  const shared = draft.tokens.shared;
 
   // radius
-  if (others.radius !== undefined) {
-    vars.push(`  --radius: ${others.radius};`);
+  if (shared.radius !== undefined) {
+    vars.push(`  --radius: ${shared.radius};`);
   }
 
   // spacing
-  if (others.spacing !== undefined) {
-    vars.push(`  --spacing: ${others.spacing};`);
+  if (shared.spacing !== undefined) {
+    vars.push(`  --spacing: ${shared.spacing};`);
   }
 
   // shadow (복합 속성)
-  if (others.shadow) {
-    const s = others.shadow;
+  if (shared.shadow) {
+    const s = shared.shadow as Record<string, any>;
     vars.push(`  --shadow-color: ${s["shadow-color"] || s.color || "#000"};`);
     vars.push(
       `  --shadow-opacity: ${s["shadow-opacity"] || s.opacity || "0.1"};`
@@ -74,17 +75,17 @@ export function generateCSSVars(
 
   // 1. CSS variables 선언 + Typography 직접 적용
   const canvasStyles = [...vars];
-  if (draft.shared.typography["font-sans"]) {
+  if (typography["font-sans"]) {
     canvasStyles.push(`  font-family: var(--font-sans);`);
   }
-  if (draft.shared.typography["tracking-normal"] !== undefined) {
+  if (typography["tracking-normal"] !== undefined) {
     canvasStyles.push(`  letter-spacing: var(--tracking-normal);`);
   }
 
   cssRules.push(`.preview-canvas {\n${canvasStyles.join("\n")}\n}`);
 
   // 2. Radius 적용 (rounded-* 클래스 오버라이드)
-  if (others.radius) {
+  if (shared.radius) {
     cssRules.push(
       `.preview-canvas .rounded { border-radius: calc(var(--radius) * 0.5) !important; }`,
       `.preview-canvas .rounded-sm { border-radius: calc(var(--radius) * 0.5) !important; }`,
@@ -95,7 +96,7 @@ export function generateCSSVars(
   }
 
   // 3. Spacing 적용 (gap, padding 등)
-  if (others.spacing) {
+  if (shared.spacing) {
     cssRules.push(
       `.preview-canvas .space-y-1 > * + * { margin-top: var(--spacing) !important; }`,
       `.preview-canvas .space-y-2 > * + * { margin-top: calc(var(--spacing) * 2) !important; }`,
@@ -106,8 +107,8 @@ export function generateCSSVars(
   }
 
   // 4. Shadow 적용 (Card 등)
-  if (others.shadow) {
-    const s = others.shadow;
+  if (shared.shadow) {
+    const s = shared.shadow as Record<string, any>;
     const shadowColor = s["shadow-color"] || s.color || "#000000";
     const opacity = s["shadow-opacity"] || s.opacity || "0.1";
 
