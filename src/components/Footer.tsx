@@ -2,14 +2,28 @@ import { useDraftStore } from "@/store/useDraftStore";
 import { Button } from "@/components/ui/button";
 
 export function Footer() {
-  const { workingDraft } = useDraftStore();
+  const { workingDraft, saveAsNewPreset, saveToCurrentPreset } =
+    useDraftStore();
   const dirty = workingDraft.dirty;
   const currentPresetName = workingDraft.sourcePresetId || "Untitled";
+  const canSave = workingDraft.dirty === true;
 
   const handleSave = () => {
-    // TODO: Save to preset functionality
-    console.log("Save functionality - TODO");
-    alert("Save functionality - TODO");
+    // nothing changed → no-op
+    if (!workingDraft.dirty) return;
+
+    // Case 1: no current preset → create a new preset + first version
+    if (!workingDraft.sourcePresetId) {
+      const defaultName = "New preset";
+      const name = window.prompt("Preset name", defaultName);
+      if (!name) return;
+
+      saveAsNewPreset(name);
+      return;
+    }
+
+    // Case 2: save into existing preset (append new PresetVersion)
+    saveToCurrentPreset();
   };
 
   const handleExport = () => {
@@ -61,8 +75,10 @@ export function Footer() {
 
         <div className="flex items-center gap-1.5 md:gap-2">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
+            disabled={!canSave}
             onClick={handleSave}
             className="h-7 text-[10px] md:text-[11px] px-2 md:px-3 rounded-none border-none bg-transparent"
           >

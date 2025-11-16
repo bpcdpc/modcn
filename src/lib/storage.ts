@@ -1,4 +1,4 @@
-import { WorkingDraft, Preset, VersionSnapshot } from "./types";
+import { WorkingDraft, Preset, PresetVersion } from "./types";
 
 const WORKING_DRAFT_KEY = "workingDraft";
 
@@ -98,6 +98,12 @@ export const listPresets = (): Preset[] => {
 export const createVersionId = (index: number): string =>
   `v${String(index).padStart(3, "0")}`;
 
+// Preset ID 생성 (간단 버전: timestamp 기반)
+export const createPresetId = (): string => {
+  // Example: "p_mbdn3k0s"
+  return `p_${Date.now().toString(36)}`;
+};
+
 // 새 Preset 생성
 export const createPresetFromWorkingDraft = (
   workingDraft: WorkingDraft,
@@ -107,9 +113,9 @@ export const createPresetFromWorkingDraft = (
   const now = new Date().toISOString();
   const initialTokens = workingDraft.tokens;
 
-  const initialVersion: VersionSnapshot = {
-    id: "v001",
-    label: "v001",
+  const initialVersion: PresetVersion = {
+    versionId: "v001",
+    name: "v001", // later we can make this more human-readable
     createdAt: now,
     tokens: initialTokens,
   };
@@ -134,9 +140,9 @@ export const saveWorkingDraftToExistingPreset = (
   const nextIndex = preset.versions.length + 1;
   const newVersionId = createVersionId(nextIndex);
 
-  const newVersion: VersionSnapshot = {
-    id: newVersionId,
-    label: newVersionId,
+  const newVersion: PresetVersion = {
+    versionId: newVersionId,
+    name: newVersionId, // same as versionId for now
     createdAt: now,
     tokens: workingDraft.tokens,
   };

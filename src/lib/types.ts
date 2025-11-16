@@ -26,11 +26,11 @@ export interface WorkingDraft {
   dirty: boolean; // 저장 여부 표시
 }
 
-export interface VersionSnapshot {
-  id: string; // 예: "v001", "v002" 또는 timestamp 기반 ID
-  label: string; // 예: "v001" (사용자 입력 X, 코드에서 자동 생성)
+export interface PresetVersion {
+  versionId: string; // e.g. "v001", "v002" or timestamp-based
+  name: string; // human-readable label, but for now we can reuse versionId
   createdAt: string; // ISO string
-  tokens: Tokens; // 스냅샷 시점의 전체 tokens (light/dark/shared)
+  tokens: Tokens; // full snapshot (modes.light/dark + shared)
 }
 
 export interface Preset {
@@ -40,5 +40,5 @@ export interface Preset {
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
   tokens: Tokens; // 현재 preset의 최신 tokens 상태
-  versions: VersionSnapshot[]; // 과거 스냅샷들 (최신 포함 가능)
+  versions: PresetVersion[]; // 과거 스냅샷들 (최신 포함 가능)
 }

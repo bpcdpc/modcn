@@ -23,7 +23,7 @@ export function Sidebar() {
     setSidebarTab,
     workingDraft,
     updateTokens,
-    setWorkingDraft,
+    setExpandedGroups,
     // setPreviewMode,
     sidebarOpen,
     setSidebarOpen,
@@ -174,18 +174,11 @@ export function Sidebar() {
 
   const toggleGroup = (groupName: string) => {
     const currentExpanded = expandedGroups[groupName] ?? true;
-    const updatedDraft = {
-      ...workingDraft,
-      ui: {
-        ...workingDraft.ui,
-        expandedGroups: {
-          ...expandedGroups,
-          [groupName]: !currentExpanded,
-        },
-      },
-      dirty: true,
+    const updatedExpanded = {
+      ...expandedGroups,
+      [groupName]: !currentExpanded,
     };
-    setWorkingDraft(updatedDraft);
+    setExpandedGroups(updatedExpanded);
   };
 
   const tabs: SidebarTab[] = ["Colors", "Typography", "Others"];
@@ -376,9 +369,9 @@ export function Sidebar() {
           {sidebarTab === "Typography" && (
             <div className="space-y-5">
               {(() => {
-                // Group typography into Font and Line Height
+                // Group typography into Font and Letter Spacing
                 const fontGroup: [string, string][] = [];
-                const lineHeightGroup: [string, string][] = [];
+                const letterSpacingGroup: [string, string][] = [];
 
                 const typography =
                   (workingDraft.tokens.shared.typography as Record<
@@ -389,13 +382,13 @@ export function Sidebar() {
                   if (key.startsWith("font-")) {
                     fontGroup.push([key, value]);
                   } else {
-                    lineHeightGroup.push([key, value]);
+                    letterSpacingGroup.push([key, value]);
                   }
                 });
 
                 const groups = [
                   { name: "Font", items: fontGroup },
-                  { name: "Line Height", items: lineHeightGroup },
+                  { name: "Letter Spacing", items: letterSpacingGroup },
                 ];
 
                 return groups.map((group) => {

@@ -16,6 +16,8 @@ export function Header() {
     setPreviewMode,
     toggleSidebar,
     applyPreset,
+    saveAsNewPreset,
+    saveToCurrentPreset,
   } = useDraftStore();
   
   const previewMode = workingDraft.ui.previewMode;
@@ -30,12 +32,26 @@ export function Header() {
 
   const handlePresetChange = (presetId: string) => {
     applyPreset(presetId);
+    // Preset 변경 후 목록 갱신
+    setPresets(listPresets());
   };
 
   const handleCreateNew = () => {
-    // TODO: Create new preset functionality
-    console.log("Create new preset...");
-    alert("Create new preset functionality - TODO");
+    const defaultName =
+      workingDraft.sourcePresetId && currentPresetName
+        ? `${currentPresetName} copy`
+        : "New preset";
+
+    const name = window.prompt("Preset name", defaultName);
+    if (!name) {
+      return;
+    }
+
+    // 1) 현재 workingDraft를 새 preset으로 저장
+    saveAsNewPreset(name);
+
+    // 2) dropdown 목록 갱신 (localStorage에서 다시 읽기)
+    setPresets(listPresets());
   };
 
   return (

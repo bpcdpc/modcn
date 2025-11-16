@@ -6,6 +6,10 @@ import {
   loadWorkingDraft,
   applyPresetToWorkingDraft,
   loadPreset,
+  savePreset,
+  createPresetFromWorkingDraft,
+  saveWorkingDraftToExistingPreset,
+  createPresetId,
 } from "@/lib/storage";
 
 // 디바운스 저장을 위한 타임아웃 ID
@@ -44,10 +48,13 @@ interface DraftStore {
   setPreviewMode: (mode: WorkingDraft["ui"]["previewMode"]) => void;
   setSidebarTab: (tab: SidebarTab) => void;
   setPreviewTab: (tab: PreviewTab) => void;
+  setExpandedGroups: (expanded: Record<string, boolean>) => void;
   setLayoutStyle: (style: LayoutStyle) => void;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
   applyPreset: (presetId: string) => void;
+  saveAsNewPreset: (name: string) => void;
+  saveToCurrentPreset: () => void;
   markAsReady: () => void;
 }
 
@@ -73,62 +80,104 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
 
   // Actions
   setWorkingDraft: (draft) => {
-    const updatedDraft = { ...draft, dirty: true };
-    set({ workingDraft: updatedDraft });
-    debouncedSave(updatedDraft);
+    set((state) => {
+      const prev = state.workingDraft;
+      const tokensChanged =
+        JSON.stringify(prev.tokens) !== JSON.stringify(draft.tokens);
+      const sourcePresetIdChanged =
+        prev.sourcePresetId !== draft.sourcePresetId;
+
+      return {
+        workingDraft: {
+          ...draft,
+          dirty: tokensChanged || sourcePresetIdChanged ? true : prev.dirty,
+        },
+      };
+    });
+    const { workingDraft } = get();
+    debouncedSave(workingDraft);
   },
 
   updateTokens: (tokens) => {
+    set((state) => {
+      const prev = state.workingDraft;
+      const tokensChanged =
+        JSON.stringify(prev.tokens) !== JSON.stringify(tokens);
+
+      return {
+        workingDraft: {
+          ...prev,
+          tokens,
+          dirty: tokensChanged ? true : prev.dirty,
+        },
+      };
+    });
     const { workingDraft } = get();
-    const updatedDraft: WorkingDraft = {
-      ...workingDraft,
-      tokens,
-      dirty: true,
-    };
-    set({ workingDraft: updatedDraft });
-    debouncedSave(updatedDraft);
+    debouncedSave(workingDraft);
   },
 
   setPreviewMode: (mode) => {
-    const { workingDraft } = get();
-    const updatedDraft: WorkingDraft = {
-      ...workingDraft,
-      ui: {
-        ...workingDraft.ui,
-        previewMode: mode,
-      },
-      dirty: true,
-    };
-    set({ workingDraft: updatedDraft });
-    debouncedSave(updatedDraft);
+    set((state) => {
+      const prev = state.workingDraft;
+      return {
+        workingDraft: {
+          ...prev,
+          ui: {
+            ...prev.ui,
+            previewMode: mode,
+          },
+        },
+      };
+    });
   },
 
   setSidebarTab: (tab) => {
-    const { workingDraft } = get();
-    const updatedDraft: WorkingDraft = {
-      ...workingDraft,
-      ui: {
-        ...workingDraft.ui,
+    set((state) => {
+      const prev = state.workingDraft;
+      return {
+        workingDraft: {
+          ...prev,
+          ui: {
+            ...prev.ui,
+            sidebarTab: tab,
+          },
+        },
         sidebarTab: tab,
-      },
-      dirty: true,
-    };
-    set({ workingDraft: updatedDraft, sidebarTab: tab });
-    debouncedSave(updatedDraft);
+      };
+    });
   },
+
   setPreviewTab: (tab) => {
-    const { workingDraft } = get();
-    const updatedDraft: WorkingDraft = {
-      ...workingDraft,
-      ui: {
-        ...workingDraft.ui,
+    set((state) => {
+      const prev = state.workingDraft;
+      return {
+        workingDraft: {
+          ...prev,
+          ui: {
+            ...prev.ui,
+            previewTab: tab,
+          },
+        },
         previewTab: tab,
-      },
-      dirty: true,
-    };
-    set({ workingDraft: updatedDraft, previewTab: tab });
-    debouncedSave(updatedDraft);
+      };
+    });
   },
+
+  setExpandedGroups: (expanded) => {
+    set((state) => {
+      const prev = state.workingDraft;
+      return {
+        workingDraft: {
+          ...prev,
+          ui: {
+            ...prev.ui,
+            expandedGroups: expanded,
+          },
+        },
+      };
+    });
+  },
+
   setLayoutStyle: (style) => set({ layoutStyle: style }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
@@ -141,6 +190,63 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       set({ workingDraft: updatedDraft });
       debouncedSave(updatedDraft);
     }
+  },
+
+  saveAsNewPreset: (name) => {
+    const { workingDraft } = get();
+
+    // 1) 새 preset ID 생성
+    const presetId = createPresetId();
+
+    // 2) WorkingDraft → Preset (첫 버전 포함)
+    const preset = createPresetFromWorkingDraft(workingDraft, presetId, name);
+
+    // 3) localStorage에 preset 저장
+    savePreset(preset);
+
+    // 4) WorkingDraft 업데이트: sourcePresetId 설정 + dirty=false
+    const updatedDraft: WorkingDraft = {
+      ...workingDraft,
+      sourcePresetId: presetId,
+      dirty: false,
+    };
+
+    set({ workingDraft: updatedDraft });
+
+    // 5) WorkingDraft도 저장 (즉시 반영)
+    saveWorkingDraft(updatedDraft);
+  },
+
+  saveToCurrentPreset: () => {
+    const { workingDraft } = get();
+
+    // 현재 preset에 연결되지 않은 경우 아무 것도 하지 않음 (추후 UX 개선 가능)
+    if (!workingDraft.sourcePresetId) {
+      return;
+    }
+
+    const preset = loadPreset(workingDraft.sourcePresetId);
+    if (!preset) {
+      return;
+    }
+
+    // 1) 기존 preset에 새 버전 추가
+    const updatedPreset = saveWorkingDraftToExistingPreset(
+      workingDraft,
+      preset
+    );
+
+    // 2) preset 저장
+    savePreset(updatedPreset);
+
+    // 3) WorkingDraft dirty=false (저장 완료)
+    const updatedDraft: WorkingDraft = {
+      ...workingDraft,
+      dirty: false,
+    };
+
+    set({ workingDraft: updatedDraft });
+    saveWorkingDraft(updatedDraft);
   },
 
   markAsReady: () => {
