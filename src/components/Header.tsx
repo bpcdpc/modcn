@@ -30,6 +30,12 @@ export function Header() {
     setPresets(listPresets());
   }, []);
 
+  // Refresh preset list after saves or when the linked preset changes
+  useEffect(() => {
+    // When a save completes (dirty becomes false) or sourcePresetId changes, reload presets
+    setPresets(listPresets());
+  }, [workingDraft.sourcePresetId, workingDraft.dirty]);
+
   const handlePresetChange = (presetId: string) => {
     applyPreset(presetId);
     // Preset 변경 후 목록 갱신

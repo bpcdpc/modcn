@@ -38,6 +38,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useMemo, useState } from "react";
+import { generateShadcnThemeCss } from "@/lib/theme-css";
+import { CodeBlock } from "@/components/ui/code-block";
 
 export function Preview() {
   const {
@@ -55,91 +58,171 @@ export function Preview() {
       setLayoutStyle: state.setLayoutStyle,
     }))
   );
-  
-  const previewMode = workingDraft.ui.previewMode;
+
+  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
+  const cssCode = useMemo(
+    () => generateShadcnThemeCss(workingDraft.tokens),
+    [workingDraft.tokens]
+  );
 
   return (
     <div className="flex-1 flex flex-col bg-white">
       {/* Preview Tabs */}
       <div className="border-b border-border bg-white flex items-center">
-        <button
-          onClick={() => setPreviewTab("Components")}
-          className={cn(
-            "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
-            previewTab === "Components"
-              ? "text-foreground border-foreground"
-              : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
-          )}
-        >
-          Components
-        </button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center">
             <button
-              onClick={() => setPreviewTab("Layouts")}
+              onClick={() => setPreviewTab("Components")}
               className={cn(
-                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer flex items-center gap-1",
-                "focus:outline-none focus-visible:outline-none focus-visible:ring-0",
-                previewTab === "Layouts"
+                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
+                previewTab === "Components"
                   ? "text-foreground border-foreground"
                   : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
               )}
             >
-              Layouts - {layoutStyle}
-              <span className="text-[10px]">▼</span>
+              Components
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            sideOffset={0}
-            className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  onClick={() => setPreviewTab("Layouts")}
+                  className={cn(
+                    "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer flex items-center gap-1",
+                    "focus:outline-none focus-visible:outline-none focus-visible:ring-0",
+                    previewTab === "Layouts"
+                      ? "text-foreground border-foreground"
+                      : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
+                  )}
+                >
+                  Layouts - {layoutStyle}
+                  <span className="text-[10px]">▼</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                sideOffset={0}
+                className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
+              >
+                <DropdownMenuItem
+                  onClick={() => {
+                    setPreviewTab("Layouts");
+                    setLayoutStyle("Brand");
+                  }}
+                  className="text-xs rounded-none border-b border-border m-0"
+                >
+                  Brand
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setPreviewTab("Layouts");
+                    setLayoutStyle("Commerce");
+                  }}
+                  className="text-xs rounded-none border-b border-border m-0"
+                >
+                  Commerce
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setPreviewTab("Layouts");
+                    setLayoutStyle("Blog");
+                  }}
+                  className="text-xs rounded-none border-b border-border m-0"
+                >
+                  Blog
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setPreviewTab("Layouts");
+                    setLayoutStyle("Dashboard");
+                  }}
+                  className="text-xs rounded-none m-0"
+                >
+                  Dashboard
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Codes Button (right-aligned) */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setCodeDialogOpen(true)}
+            className="gap-1 px-2 sm:px-3 hover:bg-muted/40"
           >
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Brand");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Brand
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Commerce");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Commerce
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Blog");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Blog
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Dashboard");
-              }}
-              className="text-xs rounded-none m-0"
-            >
-              Dashboard
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <span className="inline-block sm:hidden">{`{}`}</span>
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs font-medium">
+              <span>Codes</span>
+              <span className="opacity-80">{`{}`}</span>
+            </span>
+          </Button>
+        </div>
       </div>
+
+      {/* Codes Modal */}
+      {codeDialogOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setCodeDialogOpen(false)}
+          />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="bg-background text-foreground border border-border w-full max-w-3xl shadow-xl">
+              <div className="px-4 py-3 border-b border-border">
+                <h3 className="text-sm font-semibold">Theme CSS</h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  현재 토큰을 기반으로 생성된 shadcn theme CSS 입니다.
+                </p>
+              </div>
+              <div className="p-4 space-y-2">
+                <CodeBlock code={cssCode} language="css" />
+              </div>
+              <div className="px-4 py-3 border-t border-border flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">
+                  이 코드를 theme.css 파일에 붙여넣어 사용할 수 있습니다.
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCodeDialogOpen(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      const text = cssCode;
+                      if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(text);
+                      } else {
+                        const textarea = document.createElement("textarea");
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(textarea);
+                      }
+                    }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Preview Content - M2: preview-canvas 클래스로 토큰 스코핑 */}
       <div
         className={cn(
           "preview-canvas flex-1 overflow-y-auto p-4 md:p-6 lg:p-8",
-          previewMode === "dark" ? "dark bg-background" : "bg-white"
+          workingDraft.ui.previewMode === "dark" ? "dark bg-background" : "bg-white"
         )}
       >
         {previewTab === "Components" && (
