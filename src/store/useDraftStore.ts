@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { WorkingDraft, SidebarTab, PreviewTab, LayoutStyle } from "@/lib/types";
-import { createInitialWorkingDraft } from "@/lib/defaults";
+import { createInitialWorkingDraft, DEFAULT_TOKENS } from "@/lib/defaults";
 import {
   saveWorkingDraft,
   loadWorkingDraft,
@@ -37,6 +37,7 @@ interface DraftStore {
   isReady: boolean; // 초기 렌더링 완료 여부
 
   // UI State (workingDraft.ui에 포함되지 않는 전역 UI 상태)
+  hidden?: never;
   sidebarTab: SidebarTab;
   previewTab: PreviewTab;
   layoutStyle: LayoutStyle;
@@ -55,6 +56,7 @@ interface DraftStore {
   applyPreset: (presetId: string) => void;
   saveAsNewPreset: (name: string) => void;
   saveToCurrentPreset: () => void;
+  resetWorkingDraft: () => void;
   markAsReady: () => void;
 }
 
@@ -247,6 +249,41 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
 
     set({ workingDraft: updatedDraft });
     saveWorkingDraft(updatedDraft);
+  },
+
+  resetWorkingDraft: () => {
+    set((state) => {
+      const prev = state.workingDraft;
+
+      // 기본값: DEFAULT_TOKENS
+      let nextTokens = DEFAULT_TOKENS;
+
+      // preset이 연결되어 있으면 최신 버전 토큰으로
+      if (prev.sourcePresetId) {
+        const preset = loadPreset(prev.sourcePresetId);
+        if (
+          preset &&
+          Array.isArray(preset.versions) &&
+          preset.versions.length > 0
+        ) {
+          const latestVersion = preset.versions[preset.versions.length - 1];
+          if (latestVersion && latestVersion.tokens) {
+            nextTokens = latestVersion.tokens;
+          }
+        }
+      }
+
+      const nextDraft: WorkingDraft = {
+        ...prev,
+        tokens: nextTokens,
+        // sourcePresetId는 그대로 유지
+        dirty: false,
+      };
+
+      // 즉시 저장
+      saveWorkingDraft(nextDraft);
+      return { workingDraft: nextDraft };
+    });
   },
 
   markAsReady: () => {

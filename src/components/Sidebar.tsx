@@ -30,10 +30,10 @@ export function Sidebar() {
   } = useDraftStore();
 
   const previewMode = workingDraft.ui.previewMode;
-  const expandedGroups = workingDraft.ui.expandedGroups || {};
   const [editingColorValues, setEditingColorValues] = useState<
     Record<string, string>
   >({});
+  const expandedGroups = workingDraft.ui.expandedGroups || {};
 
   // 초기 로드 시 설정된 폰트 로드
   useEffect(() => {
@@ -173,9 +173,10 @@ export function Sidebar() {
   };
 
   const toggleGroup = (groupName: string) => {
-    const currentExpanded = expandedGroups[groupName] ?? true;
+    const currentExpanded =
+      (workingDraft.ui.expandedGroups || {})[groupName] ?? true;
     const updatedExpanded = {
-      ...expandedGroups,
+      ...(workingDraft.ui.expandedGroups || {}),
       [groupName]: !currentExpanded,
     };
     setExpandedGroups(updatedExpanded);
@@ -337,7 +338,7 @@ export function Sidebar() {
                                     onChange={(e) =>
                                       handleColorChange(key, e.target.value)
                                     }
-                                    className="w-5 h-5 rounded border border-border/20 shrink-0 cursor-pointer overflow-hidden"
+                                    className="w-5 h-5 rounded-sm overflow-hidden border border-border/20 shrink-0 cursor-pointer"
                                     style={{ padding: 0 }}
                                   />
                                   <input
@@ -448,7 +449,7 @@ export function Sidebar() {
                                         min={-0.1}
                                         max={0.3}
                                         step={0.005}
-                                        className="flex-1"
+                                        className="focus:outline-none"
                                       />
                                       <div className="flex items-center gap-1">
                                         <input
@@ -813,7 +814,7 @@ export function Sidebar() {
                                       onChange={(e) =>
                                         handleShadowChange(key, e.target.value)
                                       }
-                                      className="w-5 h-5 rounded border border-border/20 shrink-0 cursor-pointer overflow-hidden"
+                                      className="w-5 h-5 rounded-sm overflow-hidden border border-border/20 shrink-0 cursor-pointer"
                                       style={{ padding: 0 }}
                                     />
                                     <input

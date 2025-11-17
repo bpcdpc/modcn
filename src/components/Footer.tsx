@@ -1,21 +1,45 @@
 import { useDraftStore } from "@/store/useDraftStore";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CodeBlock } from "@/components/ui/code-block";
+import { generateShadcnThemeCss } from "@/lib/theme-css";
+import { listPresets } from "@/lib/storage";
+import type { Preset } from "@/lib/types";
 
 export function Footer() {
   const { workingDraft, saveAsNewPreset, saveToCurrentPreset } =
     useDraftStore();
   const dirty = workingDraft.dirty;
-  const currentPresetName = workingDraft.sourcePresetId || "Untitled";
+  const [presets, setPresets] = useState<Preset[]>([]);
+  const currentPresetName = workingDraft.sourcePresetId
+    ? presets.find((p) => p.id === workingDraft.sourcePresetId)?.name ||
+      "Untitled"
+    : "Untitled";
   const canSave = workingDraft.dirty === true;
+
+  useEffect(() => {
+    setPresets(listPresets());
+  }, []);
+
+  useEffect(() => {
+    setPresets(listPresets());
+  }, [workingDraft.sourcePresetId, workingDraft.dirty]);
 
   // Save dialog state
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveMode, setSaveMode] = useState<"current" | "new">("current");
   const [presetName, setPresetName] = useState("");
+
+  // Codes dialog state
+  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const cssCode = useMemo(
+    () => generateShadcnThemeCss(workingDraft.tokens),
+    [workingDraft.tokens]
+  );
 
   const handleOpenSaveDialog = () => {
     if (!canSave) return;
@@ -40,12 +64,6 @@ export function Footer() {
     }
     setSaveDialogOpen(false);
   };
-
-  // const handleExport = () => {
-  //   // TODO: Export / ExportJob 기능 구현
-  //   console.log("Export functionality - TODO");
-  //   alert("Export functionality - TODO");
-  // };
 
   return (
     <footer className="h-[44px] border-t border-border bg-background flex items-center justify-between px-4 md:px-6">
@@ -99,33 +117,33 @@ export function Footer() {
           >
             Save
           </Button>
-          {/* <Button
+          {/* Export 자리 → Codes 버튼 */}
+          <Button
+            type="button"
             variant="ghost"
             size="sm"
-            onClick={handleExport}
-            className="h-7 text-[10px] md:text-[11px] px-2 md:px-3 rounded-none border-none bg-transparent"
+            onClick={() => {
+              setCopied(false);
+              setCodeDialogOpen(true);
+            }}
+            className="h-7 text-[10px] md:text-[11px] px-2 md:px-3 rounded-none border-none bg-transparent hover:bg-muted/40"
           >
-            Export
-          </Button> */}
+            Codes
+          </Button>
         </div>
       </div>
 
       {/* Save Modal */}
       {saveDialogOpen && (
         <div className="fixed inset-0 z-50">
-          {/* overlay */}
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setSaveDialogOpen(false)}
           />
-          {/* content */}
           <div className="absolute inset-0 flex items-center justify-center p-4">
             <div className="bg-background text-foreground border border-border w-full max-w-md shadow-xl">
-              <div className="px-4 py-3 border-b border-border">
+              <div className="px-4 py-3">
                 <h3 className="text-sm font-semibold">Save changes</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  현재 작업 중인 토큰 변경 사항을 어떻게 저장할지 선택하세요.
-                </p>
               </div>
 
               <div className="p-4 space-y-4">
@@ -144,9 +162,6 @@ export function Footer() {
                         <span className="text-sm font-medium">
                           Save to current preset
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          현재 선택된 Preset에 새 버전을 추가합니다.
-                        </span>
                       </Label>
                     </div>
 
@@ -159,9 +174,6 @@ export function Footer() {
                         >
                           <span className="text-sm font-medium">
                             Save as new preset
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            새로운 Preset을 만들고 첫 번째 버전을 생성합니다.
                           </span>
                         </Label>
                         <Input
@@ -176,10 +188,6 @@ export function Footer() {
                 ) : (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Save as new preset</p>
-                    <p className="text-xs text-muted-foreground">
-                      아직 연결된 Preset이 없으므로, 새로운 Preset으로
-                      저장합니다.
-                    </p>
                     <Input
                       value={presetName}
                       onChange={(e) => setPresetName(e.target.value)}
@@ -189,7 +197,7 @@ export function Footer() {
                 )}
               </div>
 
-              <div className="px-4 py-3 border-t border-border flex justify-end gap-2">
+              <div className="px-4 py-3 flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -209,6 +217,97 @@ export function Footer() {
                   }
                 >
                   Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Codes Modal */}
+      {codeDialogOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setCodeDialogOpen(false)}
+          />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="bg-background text-foreground border border-border w-full max-w-3xl shadow-xl">
+              <div className="px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Theme Variables</h3>
+                  <span className="text-[10px] text-muted-foreground">
+                    index.css
+                  </span>
+                </div>
+              </div>
+              <div className="p-4">
+                <CodeBlock code={cssCode} language="css" />
+              </div>
+              <div className="px-4 py-3 flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="default"
+                  onClick={() => {
+                    const text = cssCode;
+                    if (navigator.clipboard && window.isSecureContext) {
+                      navigator.clipboard
+                        .writeText(text)
+                        .then(() => setCopied(true));
+                    } else {
+                      const textarea = document.createElement("textarea");
+                      textarea.value = text;
+                      document.body.appendChild(textarea);
+                      textarea.select();
+                      document.execCommand("copy");
+                      document.body.removeChild(textarea);
+                      setCopied(true);
+                    }
+                  }}
+                  className="h-7 text-[11px] px-2 md:px-3 gap-1"
+                >
+                  {copied ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mr-1"
+                    >
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mr-1"
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  )}
+                  <span>{copied ? "Copied" : "Copy"}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCodeDialogOpen(false)}
+                >
+                  Close
                 </Button>
               </div>
             </div>

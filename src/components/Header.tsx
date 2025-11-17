@@ -18,6 +18,7 @@ export function Header() {
     applyPreset,
     saveAsNewPreset,
     saveToCurrentPreset,
+    resetWorkingDraft,
   } = useDraftStore();
   
   const previewMode = workingDraft.ui.previewMode;
@@ -25,6 +26,8 @@ export function Header() {
   const currentPresetName = workingDraft.sourcePresetId
     ? presets.find((p) => p.id === workingDraft.sourcePresetId)?.name || "Untitled"
     : "Untitled";
+
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   useEffect(() => {
     setPresets(listPresets());
@@ -90,46 +93,7 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Preset Dropdown */}
-        <div className="flex items-center gap-2 pl-2 md:pl-3">
-          <span className="hidden md:inline text-xs text-muted-foreground">
-            Preset:
-          </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between rounded-none"
-              >
-                {currentPresetName}
-                <span className="ml-1 text-[10px]">▼</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              sideOffset={0}
-              className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
-            >
-              {presets.map((preset) => (
-                <DropdownMenuItem
-                  key={preset.id}
-                  onClick={() => handlePresetChange(preset.id)}
-                  className="rounded-none border-b border-border m-0 text-xs"
-                >
-                  {preset.name}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuItem
-                onClick={handleCreateNew}
-                className="rounded-none m-0 text-xs text-muted-foreground"
-              >
-                + Create New...
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Light/Dark Toggle */}
+        {/* 1) Light/Dark Toggle (modes 선택버튼) */}
         <div>
           <button
             onClick={() =>
@@ -179,7 +143,103 @@ export function Header() {
             )}
           </button>
         </div>
+
+        {/* 2) Reset 버튼 (UI Shell 컨벤션) */}
+        <div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setResetDialogOpen(true)}
+            className="h-8 rounded-none"
+          >
+            Reset
+          </Button>
+        </div>
+
+        {/* 3) Preset Dropdown */}
+        <div className="flex items-center gap-2 pl-2 md:pl-3">
+          <span className="hidden md:inline text-xs text-muted-foreground">
+            Preset:
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-8 min-w-[80px] md:min-w-[100px] text-xs justify-between rounded-none"
+              >
+                {currentPresetName}
+                <span className="ml-1 text-[10px]">▼</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              sideOffset={0}
+              className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
+            >
+              {presets.map((preset) => (
+                <DropdownMenuItem
+                  key={preset.id}
+                  onClick={() => handlePresetChange(preset.id)}
+                  className="rounded-none border-b border-border m-0 text-xs"
+                >
+                  {preset.name}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuItem
+                onClick={handleCreateNew}
+                className="rounded-none m-0 text-xs text-muted-foreground"
+              >
+                + Create New...
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+
+      {/* Reset Modal */}
+      {resetDialogOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setResetDialogOpen(false)}
+          />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="bg-background text-foreground border border-border w-full max-w-md shadow-xl">
+              <div className="px-4 py-3">
+                <h3 className="text-sm font-semibold">Reset tokens</h3>
+              </div>
+              <div className="p-4 text-sm text-muted-foreground">
+                현재 작업 중인 토큰 값을 되돌립니다.
+                <br />
+                연결된 Preset이 있으면 그 Preset의 최신 버전으로, 없으면 기본 토큰 세트로 복원합니다.
+                Preset과 버전 기록은 삭제되지 않습니다.
+              </div>
+              <div className="px-4 py-3 flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setResetDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    resetWorkingDraft();
+                    setResetDialogOpen(false);
+                  }}
+                >
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

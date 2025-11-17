@@ -34,13 +34,17 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
             className="m-0 p-4 text-xs leading-relaxed font-mono"
             style={style as React.CSSProperties}
           >
-            {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line, key: i })}>
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token, key })} />
-                ))}
-              </div>
-            ))}
+            {tokens.map((line, i) => {
+              const lineProps = getLineProps({ line });
+              return (
+                <div key={i} {...lineProps}>
+                  {line.map((token, k) => {
+                    const tokenProps = getTokenProps({ token });
+                    return <span key={k} {...tokenProps} />;
+                  })}
+                </div>
+              );
+            })}
           </pre>
         )}
       </Highlight>

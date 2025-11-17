@@ -143,80 +143,8 @@ export function Preview() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-          {/* Codes Button (right-aligned) */}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setCodeDialogOpen(true)}
-            className="gap-1 px-2 sm:px-3 hover:bg-muted/40"
-          >
-            <span className="inline-block sm:hidden">{`{}`}</span>
-            <span className="hidden sm:inline-flex items-center gap-1 text-xs font-medium">
-              <span>Codes</span>
-              <span className="opacity-80">{`{}`}</span>
-            </span>
-          </Button>
         </div>
       </div>
-
-      {/* Codes Modal */}
-      {codeDialogOpen && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setCodeDialogOpen(false)}
-          />
-          <div className="absolute inset-0 flex items-center justify-center p-4">
-            <div className="bg-background text-foreground border border-border w-full max-w-3xl shadow-xl">
-              <div className="px-4 py-3 border-b border-border">
-                <h3 className="text-sm font-semibold">Theme CSS</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  현재 토큰을 기반으로 생성된 shadcn theme CSS 입니다.
-                </p>
-              </div>
-              <div className="p-4 space-y-2">
-                <CodeBlock code={cssCode} language="css" />
-              </div>
-              <div className="px-4 py-3 border-t border-border flex items-center justify-between gap-2">
-                <span className="text-xs text-muted-foreground">
-                  이 코드를 theme.css 파일에 붙여넣어 사용할 수 있습니다.
-                </span>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCodeDialogOpen(false)}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => {
-                      const text = cssCode;
-                      if (navigator.clipboard && window.isSecureContext) {
-                        navigator.clipboard.writeText(text);
-                      } else {
-                        const textarea = document.createElement("textarea");
-                        textarea.value = text;
-                        document.body.appendChild(textarea);
-                        textarea.select();
-                        document.execCommand("copy");
-                        document.body.removeChild(textarea);
-                      }
-                    }}
-                  >
-                    Copy
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Preview Content - M2: preview-canvas 클래스로 토큰 스코핑 */}
       <div
