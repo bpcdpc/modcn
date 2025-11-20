@@ -71,77 +71,77 @@ export function Preview() {
       <div className="border-b border-border bg-white flex items-center">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center">
+        <button
+          onClick={() => setPreviewTab("Components")}
+          className={cn(
+            "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
+            previewTab === "Components"
+              ? "text-foreground border-foreground"
+              : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          Components
+        </button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <button
-              onClick={() => setPreviewTab("Components")}
+              onClick={() => setPreviewTab("Layouts")}
               className={cn(
-                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
-                previewTab === "Components"
+                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer flex items-center gap-1",
+                "focus:outline-none focus-visible:outline-none focus-visible:ring-0",
+                previewTab === "Layouts"
                   ? "text-foreground border-foreground"
                   : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
               )}
             >
-              Components
+              Layouts - {layoutStyle}
+              <span className="text-[10px]">▼</span>
             </button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  onClick={() => setPreviewTab("Layouts")}
-                  className={cn(
-                    "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer flex items-center gap-1",
-                    "focus:outline-none focus-visible:outline-none focus-visible:ring-0",
-                    previewTab === "Layouts"
-                      ? "text-foreground border-foreground"
-                      : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  Layouts - {layoutStyle}
-                  <span className="text-[10px]">▼</span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                sideOffset={0}
-                className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
-              >
-                <DropdownMenuItem
-                  onClick={() => {
-                    setPreviewTab("Layouts");
-                    setLayoutStyle("Brand");
-                  }}
-                  className="text-xs rounded-none border-b border-border m-0"
-                >
-                  Brand
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setPreviewTab("Layouts");
-                    setLayoutStyle("Commerce");
-                  }}
-                  className="text-xs rounded-none border-b border-border m-0"
-                >
-                  Commerce
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setPreviewTab("Layouts");
-                    setLayoutStyle("Blog");
-                  }}
-                  className="text-xs rounded-none border-b border-border m-0"
-                >
-                  Blog
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setPreviewTab("Layouts");
-                    setLayoutStyle("Dashboard");
-                  }}
-                  className="text-xs rounded-none m-0"
-                >
-                  Dashboard
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            sideOffset={0}
+            className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
+          >
+            <DropdownMenuItem
+              onClick={() => {
+                setPreviewTab("Layouts");
+                setLayoutStyle("Brand");
+              }}
+              className="text-xs rounded-none border-b border-border m-0"
+            >
+              Brand
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setPreviewTab("Layouts");
+                setLayoutStyle("Commerce");
+              }}
+              className="text-xs rounded-none border-b border-border m-0"
+            >
+              Commerce
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setPreviewTab("Layouts");
+                setLayoutStyle("Blog");
+              }}
+              className="text-xs rounded-none border-b border-border m-0"
+            >
+              Blog
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setPreviewTab("Layouts");
+                setLayoutStyle("Dashboard");
+              }}
+              className="text-xs rounded-none m-0"
+            >
+              Dashboard
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
           </div>
         </div>
       </div>

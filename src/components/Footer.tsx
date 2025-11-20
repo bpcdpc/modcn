@@ -14,10 +14,32 @@ export function Footer() {
     useDraftStore();
   const dirty = workingDraft.dirty;
   const [presets, setPresets] = useState<Preset[]>([]);
-  const currentPresetName = workingDraft.sourcePresetId
-    ? presets.find((p) => p.id === workingDraft.sourcePresetId)?.name ||
-      "Untitled"
-    : "Untitled";
+  const currentPreset = workingDraft.sourcePresetId
+    ? presets.find((p) => p.id === workingDraft.sourcePresetId) || null
+    : null;
+  const currentPresetName = currentPreset?.name || "Untitled";
+  const currentPresetVersion = currentPreset
+    ? currentPreset.versions.length > 0
+      ? currentPreset.versions[currentPreset.versions.length - 1].name
+      : null
+    : null;
+  const lastSavedDate = currentPreset
+    ? currentPreset.versions.length > 0
+      ? currentPreset.versions[currentPreset.versions.length - 1].createdAt
+      : currentPreset.updatedAt
+    : null;
+
+  const formatDateTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const canSave = workingDraft.dirty === true;
 
   useEffect(() => {
@@ -77,12 +99,24 @@ export function Footer() {
       {/* 우측: 상태 및 버튼 */}
       <div className="flex items-center gap-2 md:gap-3 text-[11px] ml-auto">
         <span className="text-muted-foreground">{currentPresetName}</span>
+        {currentPresetVersion && (
+          <>
+            <span className="text-muted-foreground/50">·</span>
+            <span className="text-muted-foreground">
+              {currentPresetVersion}
+            </span>
+          </>
+        )}
         <span className="text-muted-foreground/50">·</span>
 
-        <div className="hidden md:flex items-center gap-1.5">
-          <span className="text-muted-foreground">Last saved:</span>
-          <span className="text-muted-foreground">Nov 6, 2025</span>
-        </div>
+        {lastSavedDate && (
+          <div className="hidden md:flex items-center gap-1.5">
+            <span className="text-muted-foreground">Last saved:</span>
+            <span className="text-muted-foreground">
+              {formatDateTime(lastSavedDate)}
+            </span>
+          </div>
+        )}
         <span className="hidden md:inline text-muted-foreground/50">·</span>
 
         <div className="flex items-center gap-1.5">

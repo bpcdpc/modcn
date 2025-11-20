@@ -106,3 +106,20 @@ export const createInitialWorkingDraft = (): WorkingDraft => ({
   },
   dirty: false,
 });
+
+/**
+ * DEFAULT_TOKENS를 기준으로 완전히 새로운 workingDraft를 생성합니다.
+ * "Create New" 액션에서 사용됩니다.
+ * structuredClone을 사용하여 깊은 복사를 수행합니다.
+ */
+export const createEmptyWorkingDraft = (): WorkingDraft => ({
+  sourcePresetId: null,
+  tokens: structuredClone(DEFAULT_TOKENS), // 깊은 복사
+  ui: {
+    previewMode: "light",
+    sidebarTab: "Colors",
+    previewTab: "Components",
+    expandedGroups: {},
+  },
+  dirty: false,
+});

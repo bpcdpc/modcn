@@ -506,6 +506,10 @@ export function Sidebar() {
 
                                 const fonts = getFontsByCategory(category);
                                 const currentFontName = extractFontName(value);
+                                const previewText =
+                                  category === "monospace"
+                                    ? "123 Code"
+                                    : "123 가나다";
 
                                 return (
                                   <div key={key}>
@@ -520,7 +524,23 @@ export function Sidebar() {
                                     >
                                       <SelectTrigger className="w-full h-8 text-[10px] bg-muted">
                                         <SelectValue>
-                                          {currentFontName}
+                                          <div className="flex items-center justify-between w-full gap-2">
+                                            <span
+                                              style={{
+                                                fontFamily: value,
+                                              }}
+                                            >
+                                              {currentFontName}
+                                            </span>
+                                            <span
+                                              className="text-[9px] opacity-70 truncate max-w-[100px]"
+                                              style={{
+                                                fontFamily: value,
+                                              }}
+                                            >
+                                              {previewText}
+                                            </span>
+                                          </div>
                                         </SelectValue>
                                       </SelectTrigger>
                                       <SelectContent>
@@ -530,7 +550,23 @@ export function Sidebar() {
                                             value={font.value}
                                             className="text-[10px]"
                                           >
-                                            {font.name}
+                                            <div className="flex items-center justify-between w-full gap-2">
+                                              <span
+                                                style={{
+                                                  fontFamily: font.value,
+                                                }}
+                                              >
+                                                {font.name}
+                                              </span>
+                                              <span
+                                                className="text-[9px] opacity-70 truncate max-w-[120px]"
+                                                style={{
+                                                  fontFamily: font.value,
+                                                }}
+                                              >
+                                                {previewText}
+                                              </span>
+                                            </div>
                                           </SelectItem>
                                         ))}
                                       </SelectContent>

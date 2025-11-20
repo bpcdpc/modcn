@@ -1,13 +1,13 @@
 /**
  * useTokens.ts
- * 
+ *
  * M2: Token 편집을 위한 React hooks
- * 
+ *
  * Purpose:
  * - 컴포넌트에서 토큰 값을 읽고 수정
  * - mode별 색상 처리
  * - 자동 dirty 상태 업데이트 + sessionStorage 저장
- * 
+ *
  * Usage:
  * const { setToken } = useTokens();
  * setToken('colors', 'primary', '#ff0000', 'light');
@@ -54,7 +54,9 @@ export function useTokens() {
           },
         });
       } else if (category === "typography") {
-        const typography = (workingDraft.tokens.shared.typography as Record<string, string>) || {};
+        const typography =
+          (workingDraft.tokens.shared.typography as Record<string, string>) ||
+          {};
         updateTokens({
           ...workingDraft.tokens,
           shared: {
@@ -102,7 +104,9 @@ export function useTokens() {
    * Typography 토큰 반환
    */
   const getTypography = useCallback(() => {
-    return (workingDraft.tokens.shared.typography as Record<string, string>) || {};
+    return (
+      (workingDraft.tokens.shared.typography as Record<string, string>) || {}
+    );
   }, [workingDraft]);
 
   /**
@@ -122,4 +126,3 @@ export function useTokens() {
     getOthers,
   };
 }
-

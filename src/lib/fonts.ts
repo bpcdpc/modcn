@@ -70,7 +70,7 @@ export const GOOGLE_FONTS: FontOption[] = [
   },
   {
     name: "Pretendard",
-    value: "Pretendard, system-ui, sans-serif",
+    value: '"Pretendard", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     category: "sans-serif",
     weights: [400, 500, 600, 700],
   },
@@ -216,13 +216,47 @@ export const GOOGLE_FONTS: FontOption[] = [
   },
 ];
 
-// 카테고리별 폰트 필터 (한국어 폰트 우선 정렬)
+// 카테고리별 폰트 필터 (Pretendard 우선, 한국어 폰트 우선 정렬)
 export const getFontsByCategory = (
   category: "sans-serif" | "serif" | "monospace"
 ) => {
   const filtered = GOOGLE_FONTS.filter((font) => font.category === category);
 
-  // 한국어 폰트 목록
+  // Pretendard를 가장 먼저 배치 (sans-serif만)
+  if (category === "sans-serif") {
+    const pretendard = filtered.find((font) => font.name === "Pretendard");
+    const withoutPretendard = filtered.filter(
+      (font) => font.name !== "Pretendard"
+    );
+
+    // 한국어 폰트 목록
+    const koreanFonts = [
+      "Noto Sans KR",
+      "Noto Serif KR",
+      "IBM Plex Sans KR",
+      "Nanum Gothic",
+      "Nanum Myeongjo",
+      "Gowun Dodum",
+      "Gowun Batang",
+      "Black Han Sans",
+      "Gothic A1",
+      "Nanum Brush Script",
+      "Sunflower",
+    ];
+
+    // 한국어 폰트와 영문 폰트 분리
+    const korean = withoutPretendard.filter((font) =>
+      koreanFonts.includes(font.name)
+    );
+    const others = withoutPretendard.filter(
+      (font) => !koreanFonts.includes(font.name)
+    );
+
+    // Pretendard → 한국어 폰트 → 영문 폰트 순서
+    return pretendard ? [pretendard, ...korean, ...others] : [...korean, ...others];
+  }
+
+  // serif, monospace는 기존 로직 유지
   const koreanFonts = [
     "Noto Sans KR",
     "Noto Serif KR",
@@ -237,11 +271,9 @@ export const getFontsByCategory = (
     "Sunflower",
   ];
 
-  // 한국어 폰트와 영문 폰트 분리
   const korean = filtered.filter((font) => koreanFonts.includes(font.name));
   const others = filtered.filter((font) => !koreanFonts.includes(font.name));
 
-  // 한국어 폰트를 먼저 배치
   return [...korean, ...others];
 };
 

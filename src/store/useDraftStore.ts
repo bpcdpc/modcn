@@ -1,6 +1,17 @@
 import { create } from "zustand";
-import { WorkingDraft, SidebarTab, PreviewTab, LayoutStyle } from "@/lib/types";
-import { createInitialWorkingDraft, DEFAULT_TOKENS } from "@/lib/defaults";
+import {
+  WorkingDraft,
+  SidebarTab,
+  PreviewTab,
+  LayoutStyle,
+  Preset,
+  PresetVersion,
+} from "@/lib/types";
+import {
+  createInitialWorkingDraft,
+  DEFAULT_TOKENS,
+  createEmptyWorkingDraft,
+} from "@/lib/defaults";
 import {
   saveWorkingDraft,
   loadWorkingDraft,
@@ -10,6 +21,8 @@ import {
   createPresetFromWorkingDraft,
   saveWorkingDraftToExistingPreset,
   createPresetId,
+  renamePreset,
+  deletePreset,
 } from "@/lib/storage";
 
 // 디바운스 저장을 위한 타임아웃 ID
@@ -57,6 +70,10 @@ interface DraftStore {
   saveAsNewPreset: (name: string) => void;
   saveToCurrentPreset: () => void;
   resetWorkingDraft: () => void;
+  createNewWorkingDraft: () => void;
+  createNewPresetFromDefault: (name: string) => void;
+  renamePreset: (presetId: string, newName: string) => void;
+  deletePreset: (presetId: string) => void;
   markAsReady: () => void;
 }
 
@@ -284,6 +301,94 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       saveWorkingDraft(nextDraft);
       return { workingDraft: nextDraft };
     });
+  },
+
+  createNewWorkingDraft: () => {
+    const newDraft = createEmptyWorkingDraft();
+    set({ workingDraft: newDraft });
+    // UI 상태도 초기화
+    set({
+      sidebarTab: newDraft.ui.sidebarTab,
+      previewTab: newDraft.ui.previewTab,
+    });
+    // 즉시 저장
+    saveWorkingDraft(newDraft);
+  },
+
+  createNewPresetFromDefault: (name) => {
+    // 1) 새 preset ID 생성
+    const presetId = createPresetId();
+
+    // 2) DEFAULT_TOKENS로 새 preset 생성
+    const now = new Date().toISOString();
+    const defaultTokens = structuredClone(DEFAULT_TOKENS);
+
+    const initialVersion: PresetVersion = {
+      versionId: "v001",
+      name: "v001",
+      createdAt: now,
+      tokens: defaultTokens,
+    };
+
+    const newPreset: Preset = {
+      schemaVersion: "1.3",
+      id: presetId,
+      name,
+      createdAt: now,
+      updatedAt: now,
+      tokens: defaultTokens,
+      versions: [initialVersion],
+    };
+
+    // 3) localStorage에 preset 저장
+    savePreset(newPreset);
+
+    // 4) DEFAULT_TOKENS로 새 workingDraft 생성하고 preset에 연결
+    const newDraft: WorkingDraft = {
+      sourcePresetId: presetId,
+      tokens: defaultTokens,
+      ui: {
+        previewMode: "light",
+        sidebarTab: "Colors",
+        previewTab: "Components",
+        expandedGroups: {},
+      },
+      dirty: false,
+    };
+
+    set({ workingDraft: newDraft });
+    // UI 상태도 초기화
+    set({
+      sidebarTab: newDraft.ui.sidebarTab,
+      previewTab: newDraft.ui.previewTab,
+    });
+    // 즉시 저장
+    saveWorkingDraft(newDraft);
+  },
+
+  renamePreset: (presetId, newName) => {
+    // storage 유틸 호출
+    renamePreset(presetId, newName);
+    // workingDraft는 건드리지 않음
+  },
+
+  deletePreset: (presetId) => {
+    const { workingDraft } = get();
+
+    // 1) storage에서 삭제
+    deletePreset(presetId);
+
+    // 2) 현재 workingDraft가 이 preset에 연결된 경우 detach
+    if (workingDraft.sourcePresetId === presetId) {
+      const updatedDraft: WorkingDraft = {
+        ...workingDraft,
+        sourcePresetId: null,
+        dirty: true,
+      };
+      set({ workingDraft: updatedDraft });
+      saveWorkingDraft(updatedDraft);
+    }
+    // 연결되지 않은 경우에는 아무 것도 하지 않음
   },
 
   markAsReady: () => {

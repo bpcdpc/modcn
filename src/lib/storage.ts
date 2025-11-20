@@ -71,6 +71,7 @@ export const loadPreset = (id: string): Preset | null => {
 };
 
 // 모든 Preset 목록 가져오기 (localStorage에서 modcn:preset: 접두사로 시작하는 키 찾기)
+// createdAt 기준 오름차순 정렬 (가장 오래된 것부터)
 export const listPresets = (): Preset[] => {
   const presets: Preset[] = [];
   try {
@@ -91,7 +92,12 @@ export const listPresets = (): Preset[] => {
   } catch (error) {
     console.error("Failed to list presets:", error);
   }
-  return presets;
+  // createdAt 기준 내림차순 정렬 (가장 최신 것부터)
+  return presets.sort((a, b) => {
+    const dateA = new Date(a.createdAt).getTime();
+    const dateB = new Date(b.createdAt).getTime();
+    return dateB - dateA;
+  });
 };
 
 // 버전 ID 생성
@@ -171,6 +177,37 @@ export const applyPresetToWorkingDraft = (
   },
   dirty: false,
 });
+
+// Preset 이름 변경
+export const renamePreset = (id: string, newName: string): void => {
+  try {
+    const preset = loadPreset(id);
+    if (!preset) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const updatedPreset: Preset = {
+      ...preset,
+      name: newName,
+      updatedAt: now,
+    };
+
+    savePreset(updatedPreset);
+  } catch (error) {
+    console.error("Failed to rename preset:", error);
+  }
+};
+
+// Preset 삭제
+export const deletePreset = (id: string): void => {
+  try {
+    const key = buildPresetKey(id);
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.error("Failed to delete preset:", error);
+  }
+};
 
 // Export 기능은 추후 구현 예정
 // TODO: Export / ExportJob 기능 구현
