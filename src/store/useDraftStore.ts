@@ -3,7 +3,6 @@ import {
   WorkingDraft,
   SidebarTab,
   PreviewTab,
-  LayoutStyle,
   Preset,
   PresetVersion,
 } from "@/lib/types";
@@ -53,7 +52,6 @@ interface DraftStore {
   hidden?: never;
   sidebarTab: SidebarTab;
   previewTab: PreviewTab;
-  layoutStyle: LayoutStyle;
   sidebarOpen: boolean;
 
   // Actions
@@ -63,7 +61,6 @@ interface DraftStore {
   setSidebarTab: (tab: SidebarTab) => void;
   setPreviewTab: (tab: PreviewTab) => void;
   setExpandedGroups: (expanded: Record<string, boolean>) => void;
-  setLayoutStyle: (style: LayoutStyle) => void;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
   applyPreset: (presetId: string) => void;
@@ -93,8 +90,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
   workingDraft: initialDraft,
   isReady: false, // 초기 렌더링 완료 전까지 false
   sidebarTab: initialDraft.ui.sidebarTab || "Colors",
-  previewTab: initialDraft.ui.previewTab || "Components",
-  layoutStyle: "Brand",
+  previewTab: initialDraft.ui.previewTab || "Cards",
   sidebarOpen: false,
 
   // Actions
@@ -197,7 +193,6 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
     });
   },
 
-  setLayoutStyle: (style) => set({ layoutStyle: style }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
@@ -350,7 +345,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       ui: {
         previewMode: "light",
         sidebarTab: "Colors",
-        previewTab: "Components",
+        previewTab: "Cards",
         expandedGroups: {},
       },
       dirty: false,

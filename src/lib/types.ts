@@ -1,7 +1,6 @@
 export type PreviewMode = "light" | "dark";
 export type SidebarTab = "Colors" | "Typography" | "Others";
-export type PreviewTab = "Components" | "Layouts";
-export type LayoutStyle = "Brand" | "Commerce" | "Blog" | "Dashboard";
+export type PreviewTab = "Cards" | "Components";
 
 export interface Tokens {
   modes: {

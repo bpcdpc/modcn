@@ -30,7 +30,11 @@ export const loadWorkingDraft = (): WorkingDraft | null => {
           draft.ui.sidebarTab = "Colors";
         }
         if (!draft.ui.previewTab) {
-          draft.ui.previewTab = "Components";
+          draft.ui.previewTab = "Cards";
+        }
+        // 마이그레이션: layouts → cards
+        if (draft.ui.previewTab === "Layouts") {
+          draft.ui.previewTab = "Cards";
         }
         if (!draft.ui.expandedGroups) {
           draft.ui.expandedGroups = {};

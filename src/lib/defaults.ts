@@ -101,7 +101,7 @@ export const createInitialWorkingDraft = (): WorkingDraft => ({
   ui: {
     previewMode: "light",
     sidebarTab: "Colors",
-    previewTab: "Components",
+    previewTab: "Cards",
     expandedGroups: {}, // 기본값: 모든 그룹이 펼쳐진 상태 (undefined일 때 true로 처리)
   },
   dirty: false,
@@ -118,7 +118,7 @@ export const createEmptyWorkingDraft = (): WorkingDraft => ({
   ui: {
     previewMode: "light",
     sidebarTab: "Colors",
-    previewTab: "Components",
+    previewTab: "Cards",
     expandedGroups: {},
   },
   dirty: false,

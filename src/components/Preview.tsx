@@ -3,12 +3,6 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -38,111 +32,45 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useMemo, useState } from "react";
-import { generateShadcnThemeCss } from "@/lib/theme-css";
-import { CodeBlock } from "@/components/ui/code-block";
+import { CardsPreview } from "@/components/preview/CardsPreview";
 
 export function Preview() {
   const {
     workingDraft,
     previewTab,
     setPreviewTab,
-    layoutStyle,
-    setLayoutStyle,
   } = useDraftStore(
     useShallow((state) => ({
       workingDraft: state.workingDraft,
       previewTab: state.previewTab,
       setPreviewTab: state.setPreviewTab,
-      layoutStyle: state.layoutStyle,
-      setLayoutStyle: state.setLayoutStyle,
     }))
   );
 
-  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
-  const cssCode = useMemo(
-    () => generateShadcnThemeCss(workingDraft.tokens),
-    [workingDraft.tokens]
-  );
+  const previewTabs: { id: typeof previewTab; label: string }[] = [
+    { id: "Cards", label: "Cards" },
+    { id: "Components", label: "Components" }, // 참고용, 마지막
+  ];
 
   return (
     <div className="flex-1 flex flex-col bg-white">
       {/* Preview Tabs */}
       <div className="border-b border-border bg-white flex items-center">
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center">
-        <button
-          onClick={() => setPreviewTab("Components")}
-          className={cn(
-            "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
-            previewTab === "Components"
-              ? "text-foreground border-foreground"
-              : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
-          )}
-        >
-          Components
-        </button>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <div className="flex items-center">
+          {previewTabs.map((tab) => (
             <button
-              onClick={() => setPreviewTab("Layouts")}
+              key={tab.id}
+              onClick={() => setPreviewTab(tab.id)}
               className={cn(
-                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer flex items-center gap-1",
-                "focus:outline-none focus-visible:outline-none focus-visible:ring-0",
-                previewTab === "Layouts"
+                "px-6 py-2.5 text-xs font-medium transition-colors border-b cursor-pointer",
+                previewTab === tab.id
                   ? "text-foreground border-foreground"
                   : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
               )}
             >
-              Layouts - {layoutStyle}
-              <span className="text-[10px]">▼</span>
+              {tab.label}
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            sideOffset={0}
-            className="rounded-none p-0 text-xs w-(--radix-dropdown-menu-trigger-width)"
-          >
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Brand");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Brand
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Commerce");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Commerce
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Blog");
-              }}
-              className="text-xs rounded-none border-b border-border m-0"
-            >
-              Blog
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setPreviewTab("Layouts");
-                setLayoutStyle("Dashboard");
-              }}
-              className="text-xs rounded-none m-0"
-            >
-              Dashboard
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -153,6 +81,9 @@ export function Preview() {
           workingDraft.ui.previewMode === "dark" ? "dark bg-background" : "bg-white"
         )}
       >
+        {previewTab === "Cards" && <CardsPreview />}
+
+        {/* Components 탭: 개별 UI 조각을 모아둔 레퍼런스용 프리뷰 */}
         {previewTab === "Components" && (
           <div className="max-w-7xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-foreground">
@@ -668,18 +599,6 @@ export function Preview() {
           </div>
         )}
 
-        {previewTab === "Layouts" && (
-          <div className="space-y-8">
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-semibold text-foreground mb-4">
-                {layoutStyle} Layouts
-              </h2>
-              <p className="text-muted-foreground">
-                {layoutStyle} 레이아웃 예시가 여기에 표시됩니다
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
