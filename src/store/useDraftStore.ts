@@ -144,6 +144,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
         },
       };
     });
+    const { workingDraft } = get();
+    debouncedSave(workingDraft);
   },
 
   setSidebarTab: (tab) => {
@@ -160,6 +162,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
         sidebarTab: tab,
       };
     });
+    const { workingDraft } = get();
+    debouncedSave(workingDraft);
   },
 
   setPreviewTab: (tab) => {
@@ -176,6 +180,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
         previewTab: tab,
       };
     });
+    const { workingDraft } = get();
+    debouncedSave(workingDraft);
   },
 
   setExpandedGroups: (expanded) => {
@@ -191,6 +197,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
         },
       };
     });
+    const { workingDraft } = get();
+    debouncedSave(workingDraft);
   },
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),

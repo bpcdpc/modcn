@@ -33,6 +33,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { CardsPreview } from "@/components/preview/CardsPreview";
+import { Cards2Preview } from "@/components/preview/Cards2Preview";
 
 export function Preview() {
   const {
@@ -48,6 +49,7 @@ export function Preview() {
   );
 
   const previewTabs: { id: typeof previewTab; label: string }[] = [
+    { id: "Cards2", label: "Cards 2" },
     { id: "Cards", label: "Cards" },
     { id: "Components", label: "Components" }, // 참고용, 마지막
   ];
@@ -81,6 +83,8 @@ export function Preview() {
           workingDraft.ui.previewMode === "dark" ? "dark bg-background" : "bg-white"
         )}
       >
+        {previewTab === "Cards2" && <Cards2Preview />}
+
         {previewTab === "Cards" && <CardsPreview />}
 
         {/* Components 탭: 개별 UI 조각을 모아둔 레퍼런스용 프리뷰 */}
