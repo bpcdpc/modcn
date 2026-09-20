@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+
+# 개발 과정 산출물 (ERD, UI draft 등) - 커밋 제외
+/docs/
